@@ -1,0 +1,23 @@
+{
+  "name": "timetable",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start:frontend": "npm run dev -w ./src/services/frontend",
+    "build:frontend": "npm run build -w ./src/services/frontend"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/gkatai/timetable.git"
+  },
+  "author": "gkatai",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/gkatai/timetable/issues"
+  },
+  "homepage": "https://github.com/gkatai/timetable#readme",
+  "workspaces": [
+    "src/services/frontend"
+  ]
+}
