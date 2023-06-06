@@ -18,6 +18,7 @@
   },
   "homepage": "https://github.com/gkatai/timetable#readme",
   "workspaces": [
-    "src/services/frontend"
+    "src/services/frontend",
+    "src/services/functions"
   ]
 }
