@@ -1,9 +1,13 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { AiOutlineExclamationCircle } from "react-icons/ai";
+import { Link, Navigate } from "react-router-dom";
+
 import { auth } from "../../../config/firebase";
+import { useLoginAsGuest } from "../../auth/Login/use-login-as-guest";
 
 export default function NextButton() {
   const [currentUser, setCurrentUser] = useState(auth.currentUser);
+  const [loginAsGuestState, handleGuestLoginClick] = useLoginAsGuest();
 
   useEffect(() => {
     auth.onAuthStateChanged((user) => {
@@ -17,17 +21,37 @@ export default function NextButton() {
     </Link>
   );
 
-  if (!currentUser) {
+  if (loginAsGuestState.kind === "login-pending") {
     content = (
-      <>
-        You are not logged in
-        <Link to="/auth/login" className="link px-4">
-          Log in
-        </Link>
-        or
-        <button className="link px-4">continue as guest</button>
-      </>
+      <div className="flex flex-col gap-4">
+        <div>Logging in...</div>
+      </div>
     );
+  } else if (!currentUser) {
+    content = (
+      <div className="flex flex-col gap-4">
+        <div>
+          You are not logged in
+          <Link to="/auth/login" className="link px-4">
+            log in
+          </Link>
+          or
+          <button className="link px-4" onClick={handleGuestLoginClick}>
+            continue as guest
+          </button>
+        </div>
+        {loginAsGuestState.kind === "login-rejected" && (
+          <div className="alert alert-error">
+            <AiOutlineExclamationCircle />
+            <span>Error! {loginAsGuestState.errorMessage}</span>
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  if (loginAsGuestState.kind === "login-fulfilled") {
+    return <Navigate to="/timetables" />;
   }
 
   return (

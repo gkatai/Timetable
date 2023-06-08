@@ -1,10 +1,11 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { SubmitHandler, useForm } from "react-hook-form";
-import { z } from "zod";
 import { createUserWithEmailAndPassword } from "firebase/auth";
-import { auth } from "../../config/firebase";
 import { useState } from "react";
+import { SubmitHandler, useForm } from "react-hook-form";
 import { Navigate } from "react-router-dom";
+import { z } from "zod";
+
+import { auth } from "../../config/firebase";
 
 const schema = z
   .object({

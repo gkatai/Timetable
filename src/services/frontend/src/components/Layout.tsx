@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import { AiOutlineUser } from "react-icons/ai";
-import { FiLogOut, FiSettings, FiLogIn } from "react-icons/fi";
+import { FiLogIn, FiLogOut, FiSettings } from "react-icons/fi";
 import { Link, Outlet } from "react-router-dom";
+
 import { auth } from "../config/firebase";
 
 export default function Layout() {
@@ -25,7 +26,10 @@ export default function Layout() {
           </div>
           <div className="navbar-end">
             <ul className="menu menu-horizontal hidden px-1 md:block">
-              <li>{currentUser && currentUser.email}</li>
+              <li>
+                {currentUser &&
+                  (currentUser.isAnonymous ? "Guest" : currentUser.email)}
+              </li>
             </ul>
             <div className="dropdown-end dropdown">
               <label></label>

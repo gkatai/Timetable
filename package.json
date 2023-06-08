@@ -20,5 +20,8 @@
   "workspaces": [
     "src/services/frontend",
     "src/services/functions"
-  ]
+  ],
+  "devDependencies": {
+    "@trivago/prettier-plugin-sort-imports": "^4.1.1"
+  }
 }
