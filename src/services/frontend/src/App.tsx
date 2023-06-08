@@ -1,9 +1,10 @@
 import { RouterProvider, createBrowserRouter } from "react-router-dom";
 
 import Layout from "./components/Layout";
-import Home from "./pages/Home/Home";
 import Login from "./pages/auth/Login/Login";
 import Register from "./pages/auth/Register";
+import Home from "./pages/home/Home";
+import Timeatbles from "./pages/timetables/Timetables";
 
 const router = createBrowserRouter([
   {
@@ -16,7 +17,7 @@ const router = createBrowserRouter([
       },
       {
         path: "timetables",
-        element: <h1>timetables</h1>,
+        element: <Timeatbles />,
       },
     ],
   },
