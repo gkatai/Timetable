@@ -6,7 +6,7 @@ import {
   getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table";
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { BiDownArrow, BiUpArrow } from "react-icons/bi";
 
 export type Person = {
@@ -19,78 +19,18 @@ export type Person = {
   createdAt: Date;
 };
 
-const testData: Person[] = [
-  {
-    firstName: "asdasd",
-    lastName: "sdfsdfs",
-    age: 3,
-    visits: 43,
-    progress: 456,
-    status: "relationship",
-    createdAt: new Date(),
-  },
-  {
-    firstName: "asdasd",
-    lastName: "sdfsdfs",
-    age: 3,
-    visits: 43,
-    progress: 456,
-    status: "relationship",
-    createdAt: new Date(),
-  },
-  {
-    firstName: "asdasd",
-    lastName: "sdfsdfs",
-    age: 3,
-    visits: 43,
-    progress: 456,
-    status: "relationship",
-    createdAt: new Date(),
-  },
-];
+type SimpleTableProps<T> = {
+  title: string;
+  data: T[];
+  columns: ColumnDef<T, any>[];
+};
 
-export default function SimpleTable() {
+export default function SimpleTable<T>({
+  title,
+  data,
+  columns,
+}: SimpleTableProps<T>) {
   const [sorting, setSorting] = useState<SortingState>([]);
-
-  const columns = useMemo<ColumnDef<Person>[]>(
-    () => [
-      {
-        accessorKey: "firstName",
-        cell: (info) => info.getValue(),
-        footer: (props) => props.column.id,
-      },
-      {
-        accessorFn: (row) => row.lastName,
-        id: "lastName",
-        cell: (info) => info.getValue(),
-        header: () => <span>Last Name</span>,
-        footer: (props) => props.column.id,
-      },
-      {
-        accessorKey: "age",
-        header: () => "Age",
-        footer: (props) => props.column.id,
-      },
-      {
-        accessorKey: "visits",
-        header: () => <span>Visits</span>,
-        footer: (props) => props.column.id,
-      },
-      {
-        accessorKey: "status",
-        header: "Status",
-        footer: (props) => props.column.id,
-      },
-      {
-        accessorKey: "progress",
-        header: "Profile Progress",
-        footer: (props) => props.column.id,
-      },
-    ],
-    []
-  );
-
-  const [data, setData] = useState(() => testData);
 
   const table = useReactTable({
     data,
@@ -105,6 +45,7 @@ export default function SimpleTable() {
 
   return (
     <div className="overflow-x-auto">
+      <h1 className="text-2xl font-bold text-center pt-2 pb-4">{title}</h1>
       <table className="table">
         <thead>
           {table.getHeaderGroups().map((headerGroup) => (

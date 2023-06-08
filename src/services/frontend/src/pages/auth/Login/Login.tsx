@@ -21,7 +21,7 @@ export default function Login() {
       <div className="divider text-2xl">Or Register</div>
       <div className="flex justify-center">
         <div className="w-full p-4 lg:max-w-md text-center">
-          <Link to="/auth/register" className="link">
+          <Link to="/register" className="link">
             Go to registration
           </Link>
         </div>

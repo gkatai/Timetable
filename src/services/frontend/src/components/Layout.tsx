@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useAuthState } from "react-firebase-hooks/auth";
 import { AiOutlineUser } from "react-icons/ai";
 import { FiLogIn, FiLogOut, FiSettings } from "react-icons/fi";
 import { Link, Outlet } from "react-router-dom";
@@ -6,13 +6,7 @@ import { Link, Outlet } from "react-router-dom";
 import { auth } from "../config/firebase";
 
 export default function Layout() {
-  const [currentUser, setCurrentUser] = useState(auth.currentUser);
-
-  useEffect(() => {
-    auth.onAuthStateChanged((user) => {
-      setCurrentUser(user);
-    });
-  }, []);
+  const [user] = useAuthState(auth);
 
   return (
     <>
@@ -26,10 +20,7 @@ export default function Layout() {
           </div>
           <div className="navbar-end">
             <ul className="menu menu-horizontal hidden px-1 md:block">
-              <li>
-                {currentUser &&
-                  (currentUser.isAnonymous ? "Guest" : currentUser.email)}
-              </li>
+              <li>{user && (user.isAnonymous ? "Guest" : user.email)}</li>
             </ul>
             <div className="dropdown-end dropdown">
               <label></label>
@@ -45,15 +36,15 @@ export default function Layout() {
                     Settings
                   </a>
                 </li>
-                {currentUser ? (
-                  <li onMouseDown={() => auth.signOut()}>
-                    <a>
+                {user ? (
+                  <li>
+                    <a onMouseDown={() => auth.signOut()}>
                       <FiLogOut /> Logout
                     </a>
                   </li>
                 ) : (
                   <li>
-                    <Link to="/auth/login">
+                    <Link to="/login">
                       <FiLogIn /> Login
                     </Link>
                   </li>

@@ -1,6 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { createUserWithEmailAndPassword } from "firebase/auth";
-import { useState } from "react";
+import { useCreateUserWithEmailAndPassword } from "react-firebase-hooks/auth";
 import { FormProvider, SubmitHandler, useForm } from "react-hook-form";
 import { AiOutlineExclamationCircle } from "react-icons/ai";
 import { Navigate } from "react-router-dom";
@@ -27,43 +26,16 @@ const schema = z
 
 type FormValues = z.infer<typeof schema>;
 
-type RegistrationIdle = { kind: "registration-idle" };
-
-type RegistrationPending = { kind: "registration-pending" };
-
-type RegistrationRejected = {
-  kind: "registration-rejected";
-  errorMessage: string;
-};
-
-type RegistrationFulfilled = { kind: "registration-fulfilled" };
-
-type RegistrationState =
-  | RegistrationIdle
-  | RegistrationPending
-  | RegistrationRejected
-  | RegistrationFulfilled;
-
 export default function Register() {
   const methods = useForm<FormValues>({ resolver: zodResolver(schema) });
-  const [registrationState, setRegistrationState] = useState<RegistrationState>(
-    { kind: "registration-idle" }
-  );
+  const [createUserWithEmailAndPassword, user, loading, error] =
+    useCreateUserWithEmailAndPassword(auth);
 
   const onSubmit: SubmitHandler<FormValues> = (data) => {
-    setRegistrationState({ kind: "registration-pending" });
-    createUserWithEmailAndPassword(auth, data.email, data.password)
-      .then(() => setRegistrationState({ kind: "registration-fulfilled" }))
-      .catch((error) => {
-        console.log(error.code);
-        setRegistrationState({
-          kind: "registration-rejected",
-          errorMessage: error.code,
-        });
-      });
+    createUserWithEmailAndPassword(data.email, data.password);
   };
 
-  if (registrationState.kind === "registration-fulfilled") {
+  if (user) {
     return <Navigate to="/" replace />;
   }
 
@@ -87,16 +59,16 @@ export default function Register() {
 
               <button
                 type="submit"
-                disabled={registrationState.kind === "registration-pending"}
+                disabled={loading}
                 className="btn-primary btn"
               >
                 Submit
               </button>
 
-              {registrationState.kind === "registration-rejected" && (
+              {error && (
                 <div className="alert alert-error">
                   <AiOutlineExclamationCircle />
-                  <span>Error! {registrationState.errorMessage}</span>
+                  <span>Error! {error.code}</span>
                 </div>
               )}
             </form>

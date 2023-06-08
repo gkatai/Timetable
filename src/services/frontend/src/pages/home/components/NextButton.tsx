@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useAuthState } from "react-firebase-hooks/auth";
 import { AiOutlineExclamationCircle } from "react-icons/ai";
 import { Link, Navigate } from "react-router-dom";
 
@@ -6,17 +6,11 @@ import { auth } from "../../../config/firebase";
 import { useLoginAsGuest } from "../../auth/Login/use-login-as-guest";
 
 export default function NextButton() {
-  const [currentUser, setCurrentUser] = useState(auth.currentUser);
+  const [user] = useAuthState(auth);
   const [loginAsGuestState, handleGuestLoginClick] = useLoginAsGuest();
 
-  useEffect(() => {
-    auth.onAuthStateChanged((user) => {
-      setCurrentUser(user);
-    });
-  }, []);
-
   let content = (
-    <Link to="/timetables" className="btn-primary btn">
+    <Link to="/auth/timetables" className="btn-primary btn">
       Continue to timetables
     </Link>
   );
@@ -27,12 +21,12 @@ export default function NextButton() {
         <div>Logging in...</div>
       </div>
     );
-  } else if (!currentUser) {
+  } else if (!user) {
     content = (
       <div className="flex flex-col gap-4">
         <div>
           You are not logged in
-          <Link to="/auth/login" className="link px-4">
+          <Link to="/login" className="link px-4">
             log in
           </Link>
           or
@@ -51,7 +45,7 @@ export default function NextButton() {
   }
 
   if (loginAsGuestState.kind === "login-fulfilled") {
-    return <Navigate to="/timetables" />;
+    return <Navigate to="/auth/timetables" />;
   }
 
   return (
