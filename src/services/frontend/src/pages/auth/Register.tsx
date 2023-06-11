@@ -1,16 +1,16 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useCreateUserWithEmailAndPassword } from "react-firebase-hooks/auth";
-import { FormProvider, SubmitHandler, useForm } from "react-hook-form";
+import { SubmitHandler, useForm } from "react-hook-form";
 import { AiOutlineExclamationCircle } from "react-icons/ai";
 import { Navigate } from "react-router-dom";
 import { z } from "zod";
 
-import TextInput from "../../components/TextInput";
+import Input from "../../components/Input";
 import { auth } from "../../config/firebase";
 
 const schema = z
   .object({
-    email: z.string().min(2),
+    email: z.string().email(),
     password: z.string(),
     confirmPassword: z.string(),
   })
@@ -27,7 +27,11 @@ const schema = z
 type FormValues = z.infer<typeof schema>;
 
 export default function Register() {
-  const methods = useForm<FormValues>({ resolver: zodResolver(schema) });
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<FormValues>({ resolver: zodResolver(schema) });
   const [createUserWithEmailAndPassword, user, loading, error] =
     useCreateUserWithEmailAndPassword(auth);
 
@@ -44,35 +48,47 @@ export default function Register() {
       <div className="divider text-2xl">Register</div>
       <div className="flex justify-center">
         <div className="w-full p-4 lg:max-w-md">
-          <FormProvider {...methods}>
-            <form
-              onSubmit={methods.handleSubmit(onSubmit)}
-              className="flex flex-col gap-4"
-            >
-              <TextInput label="Email" name="email" />
-              <TextInput label="Password" name="password" type="password" />
-              <TextInput
-                label="Confirm password"
-                name="confirmPassword"
-                type="password"
+          <form
+            onSubmit={handleSubmit(onSubmit)}
+            className="flex flex-col gap-4"
+          >
+            <Input label="Email" error={errors["email"]}>
+              <input
+                type="text"
+                className="input-bordered input w-full"
+                {...register("email")}
               />
+            </Input>
+            <Input label="Password" error={errors["password"]}>
+              <input
+                type="password"
+                className="input-bordered input w-full"
+                {...register("password")}
+              />
+            </Input>
+            <Input label="Confirm password" error={errors["confirmPassword"]}>
+              <input
+                type="password"
+                className="input-bordered input w-full"
+                {...register("confirmPassword")}
+              />
+            </Input>
 
-              <button
-                type="submit"
-                disabled={loading}
-                className="btn-primary btn"
-              >
-                Submit
-              </button>
+            <button
+              type="submit"
+              disabled={loading}
+              className="btn-primary btn"
+            >
+              Submit
+            </button>
 
-              {error && (
-                <div className="alert alert-error">
-                  <AiOutlineExclamationCircle />
-                  <span>Error! {error.code}</span>
-                </div>
-              )}
-            </form>
-          </FormProvider>
+            {error && (
+              <div className="alert alert-error">
+                <AiOutlineExclamationCircle />
+                <span>Error! {error.code}</span>
+              </div>
+            )}
+          </form>
         </div>
       </div>
     </div>

@@ -14,4 +14,7 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
-export const database = getDatabase(app);
+export const database = getDatabase(
+  app,
+  "https://timetable-c8a23-default-rtdb.europe-west1.firebasedatabase.app"
+);
