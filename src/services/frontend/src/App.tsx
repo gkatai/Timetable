@@ -5,8 +5,13 @@ import Auth from "./pages/auth/Auth";
 import Login from "./pages/auth/Login/Login";
 import Register from "./pages/auth/Register";
 import Home from "./pages/home/Home";
-import Rooms from "./pages/rooms/Rooms";
 import Timetables from "./pages/timetables/Timetables";
+import Wizard from "./pages/wizard/Wizard";
+import Classes from "./pages/wizard/classes/Classes";
+import Generate from "./pages/wizard/generate/Generate";
+import Rooms from "./pages/wizard/rooms/Rooms";
+import Subjects from "./pages/wizard/subjects/Subjects";
+import Teachers from "./pages/wizard/teachers/Teachers";
 
 const router = createBrowserRouter([
   {
@@ -26,8 +31,30 @@ const router = createBrowserRouter([
             element: <Timetables />,
           },
           {
-            path: "/timetables/:uid/rooms",
-            element: <Rooms />,
+            path: "/timetables/:uid",
+            element: <Wizard />,
+            children: [
+              {
+                path: "/timetables/:uid/rooms",
+                element: <Rooms />,
+              },
+              {
+                path: "/timetables/:uid/teachers",
+                element: <Teachers />,
+              },
+              {
+                path: "/timetables/:uid/subjects",
+                element: <Subjects />,
+              },
+              {
+                path: "/timetables/:uid/classes",
+                element: <Classes />,
+              },
+              {
+                path: "/timetables/:uid/generate",
+                element: <Generate />,
+              },
+            ],
           },
         ],
       },
