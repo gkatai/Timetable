@@ -1,8 +1,8 @@
-import { FieldError } from "react-hook-form";
+import { FieldError, FieldErrorsImpl, Merge } from "react-hook-form";
 
 type InputProps = {
   label: string;
-  error: FieldError | undefined;
+  error: FieldError | Merge<FieldError, FieldErrorsImpl<any>> | undefined;
   children: React.ReactElement;
 };
 

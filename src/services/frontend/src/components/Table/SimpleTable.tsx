@@ -1,5 +1,6 @@
 import {
   ColumnDef,
+  Row,
   SortingState,
   flexRender,
   getCoreRowModel,
@@ -8,27 +9,24 @@ import {
 } from "@tanstack/react-table";
 import { useState } from "react";
 import { BiDownArrow, BiUpArrow } from "react-icons/bi";
-
-export type Person = {
-  firstName: string;
-  lastName: string;
-  age: number;
-  visits: number;
-  progress: number;
-  status: "relationship" | "complicated" | "single";
-  createdAt: Date;
-};
+import { Link } from "react-router-dom";
 
 type SimpleTableProps<T> = {
   title: string;
   data: T[];
   columns: ColumnDef<T, any>[];
+  editAction: (id: string) => void;
+  deleteAction: (is: string) => void;
+  hasOpen?: boolean;
 };
 
 export default function SimpleTable<T>({
   title,
   data,
   columns,
+  editAction,
+  deleteAction,
+  hasOpen = false,
 }: SimpleTableProps<T>) {
   const [sorting, setSorting] = useState<SortingState>([]);
 
@@ -79,10 +77,10 @@ export default function SimpleTable<T>({
           ))}
         </thead>
         <tbody>
-          {table.getRowModel().rows.map((row) => {
+          {table.getRowModel().rows.map((row: any) => {
             return (
               <tr key={row.id}>
-                {row.getVisibleCells().map((cell) => {
+                {row.getVisibleCells().map((cell: any) => {
                   return (
                     <td key={cell.id}>
                       {flexRender(
@@ -92,6 +90,28 @@ export default function SimpleTable<T>({
                     </td>
                   );
                 })}
+                <td className="flex gap-4 justify-end">
+                  <button
+                    className="btn btn-primary"
+                    onClick={() => editAction(row.original["uid"])}
+                  >
+                    Edit
+                  </button>
+                  <button
+                    className="btn btn-error"
+                    onClick={() => deleteAction(row.original["uid"])}
+                  >
+                    Delete
+                  </button>
+                  {hasOpen && (
+                    <Link
+                      className="btn btn-secondary"
+                      to={`/timetables/${row.original["uid"]}/rooms`}
+                    >
+                      Open
+                    </Link>
+                  )}
+                </td>
               </tr>
             );
           })}

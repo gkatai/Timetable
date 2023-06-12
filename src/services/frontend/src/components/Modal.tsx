@@ -21,7 +21,7 @@ type ModalProps<T extends FieldValues> = {
   save: (data: T) => Promise<void>;
   children: React.ReactNode;
   reset: UseFormReset<T>;
-  handleSubmit: UseFormHandleSubmit<T, undefined>;
+  handleSubmit: UseFormHandleSubmit<FieldValues, undefined>;
 };
 
 export function Modal<T extends FieldValues>({
@@ -32,13 +32,13 @@ export function Modal<T extends FieldValues>({
 }: ModalProps<T>) {
   const [saveState, setSaveState] = useState<SaveState>({ kind: "save-idle" });
 
-  const onSubmit: SubmitHandler<T> = (data) => {
+  const onSubmit: SubmitHandler<any> = (data) => {
     setSaveState({ kind: "save-pending" });
     save(data)
       .then(() => {
         setSaveState({ kind: "save-idle" });
         reset();
-        window["create-timetable-modal"].close();
+        window["form-modal"].close();
       })
       .catch((error) =>
         setSaveState({ kind: "save-rejected", errorMessage: error.code })
@@ -48,11 +48,11 @@ export function Modal<T extends FieldValues>({
   const cancel = () => {
     setSaveState({ kind: "save-idle" });
     reset();
-    window["create-timetable-modal"].close();
+    window["form-modal"].close();
   };
 
   return (
-    <dialog id="create-timetable-modal" className="modal">
+    <dialog id="form-modal" className="modal">
       <form
         method="dialog"
         className="modal-box flex flex-col gap-4"

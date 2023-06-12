@@ -1,8 +1,8 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ColumnDef } from "@tanstack/react-table";
 import { User } from "firebase/auth";
-import { child, push, ref, update } from "firebase/database";
-import { useRef } from "react";
+import { child, push, ref, remove, update } from "firebase/database";
+import { useEffect, useState } from "react";
 import { useListVals } from "react-firebase-hooks/database";
 import { useForm } from "react-hook-form";
 import { AiOutlineExclamationCircle } from "react-icons/ai";
@@ -17,11 +17,8 @@ import { TimetableFlat } from "./timetable-types";
 
 export default function Timetables() {
   const currentUser: User = useOutletContext();
-  const timetablesFlatRef = useRef(
-    ref(database, `users/${currentUser.uid}/timetables-flat`)
-  );
   const [values, loading, error] = useListVals<TimetableFlat>(
-    timetablesFlatRef.current
+    ref(database, `users/${currentUser.uid}/timetables-flat`)
   );
 
   if (error) {
@@ -37,10 +34,11 @@ export default function Timetables() {
     return <div>Loading...</div>;
   }
 
-  return <TimeTablesLoaded data={values} uid={currentUser.uid} />;
+  return <TimeTablesLoaded data={values} currentUserId={currentUser.uid} />;
 }
 
 const schema = z.object({
+  uid: z.string().optional(),
   name: z.string().min(2),
 });
 
@@ -48,46 +46,100 @@ type FormValues = z.infer<typeof schema>;
 
 type TimetablesLoadedProps = {
   data: TimetableFlat[];
-  uid: string;
+  currentUserId: string;
 };
 
 const columns: ColumnDef<TimetableFlat>[] = [
   {
-    accessorKey: "uid",
-    cell: (info) => info.getValue(),
-  },
-  {
+    header: "Name",
     accessorKey: "name",
     footer: (props) => props.column.id,
   },
 ];
 
-function TimeTablesLoaded({ data, uid }: TimetablesLoadedProps) {
-  const methods = useForm<FormValues>({
+function TimeTablesLoaded({ data, currentUserId }: TimetablesLoadedProps) {
+  const [defaultValues, setDefaultValues] = useState<FormValues>({ name: "" });
+
+  const handleCreate = () => {
+    window["form-modal"].showModal();
+    setDefaultValues({ name: "" });
+  };
+
+  const handleEdit = (uid: string) => {
+    const foundTimetable = data.find((d) => d.uid === uid);
+
+    if (foundTimetable) {
+      window["form-modal"].showModal();
+      setDefaultValues({ name: foundTimetable.name, uid });
+    }
+  };
+
+  const handleDelete = (uid: string) => {
+    const timetableFlatRef = ref(
+      database,
+      `users/${currentUserId}/timetables-flat/${uid}`
+    );
+
+    remove(timetableFlatRef);
+  };
+
+  return (
+    <>
+      <button className="btn btn-primary" onClick={handleCreate}>
+        Create new
+      </button>
+      <Form currentUserId={currentUserId} defaultValues={defaultValues} />
+      <SimpleTable
+        title="Timetables"
+        data={data}
+        columns={columns}
+        editAction={(uid) => handleEdit(uid)}
+        deleteAction={(uid) => handleDelete(uid)}
+        hasOpen={true}
+      />
+    </>
+  );
+}
+
+type FormProps = {
+  currentUserId: string;
+  defaultValues: FormValues;
+};
+
+function Form({ currentUserId, defaultValues }: FormProps) {
+  const { formState, register, reset, handleSubmit } = useForm<FormValues>({
     resolver: zodResolver(schema),
   });
 
-  const timetablesFlatRef = useRef(
-    ref(database, `users/${uid}/timetables-flat`)
-  );
+  useEffect(() => {
+    console.log(defaultValues);
+    reset(defaultValues);
+  }, [reset, defaultValues]);
 
   const handleCreateNew = (data: FormValues) => {
+    const timetablesFlatRef = ref(
+      database,
+      `users/${currentUserId}/timetables-flat`
+    );
     return new Promise<void>((resolve, reject) => {
-      const newTimetableKey = push(
-        child(timetablesFlatRef.current, "timetables-flat")
-      ).key;
+      let timetableKey: string | null;
+      if (defaultValues.uid) {
+        timetableKey = defaultValues.uid;
+      } else {
+        timetableKey = push(child(timetablesFlatRef, "timetables-flat")).key;
+      }
 
-      if (newTimetableKey) {
+      if (timetableKey) {
         const updates: Record<string, TimetableFlat> = {};
-        updates[newTimetableKey] = {
-          uid: newTimetableKey,
+        updates[timetableKey] = {
+          uid: timetableKey,
           name: data.name,
           rooms: [],
           teachers: [],
           subjects: [],
           classes: [],
         };
-        update(timetablesFlatRef.current, updates)
+        update(timetablesFlatRef, updates)
           .then(() => resolve())
           .catch((error) => reject(error));
       }
@@ -95,23 +147,14 @@ function TimeTablesLoaded({ data, uid }: TimetablesLoadedProps) {
   };
 
   return (
-    <>
-      <button
-        className="btn"
-        onClick={() => window["create-timetable-modal"].showModal()}
-      >
-        Create new
-      </button>
-      <Modal save={handleCreateNew} {...methods}>
-        <Input label="Email" error={methods.formState.errors["name"]}>
-          <input
-            type="text"
-            className="input-bordered input w-full"
-            {...methods.register("name")}
-          />
-        </Input>
-      </Modal>
-      <SimpleTable title="Timetables" data={data} columns={columns} />
-    </>
+    <Modal save={handleCreateNew} reset={reset} handleSubmit={handleSubmit}>
+      <Input label="Email" error={formState.errors["name"]}>
+        <input
+          type="text"
+          className="input-bordered input w-full"
+          {...register("name")}
+        />
+      </Input>
+    </Modal>
   );
 }

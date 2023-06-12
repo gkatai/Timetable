@@ -10,7 +10,7 @@ export default function NextButton() {
   const [loginAsGuestState, handleGuestLoginClick] = useLoginAsGuest();
 
   let content = (
-    <Link to="/auth/timetables" className="btn-primary btn">
+    <Link to="/timetables" className="btn-primary btn">
       Continue to timetables
     </Link>
   );
@@ -45,7 +45,7 @@ export default function NextButton() {
   }
 
   if (loginAsGuestState.kind === "login-fulfilled") {
-    return <Navigate to="/auth/timetables" />;
+    return <Navigate to="/timetables" />;
   }
 
   return (

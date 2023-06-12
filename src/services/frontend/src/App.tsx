@@ -5,6 +5,7 @@ import Auth from "./pages/auth/Auth";
 import Login from "./pages/auth/Login/Login";
 import Register from "./pages/auth/Register";
 import Home from "./pages/home/Home";
+import Rooms from "./pages/rooms/Rooms";
 import Timetables from "./pages/timetables/Timetables";
 
 const router = createBrowserRouter([
@@ -17,12 +18,16 @@ const router = createBrowserRouter([
         element: <Home />,
       },
       {
-        path: "/auth",
+        path: "/timetables",
         element: <Auth />,
         children: [
           {
-            path: "timetables",
+            path: "/timetables",
             element: <Timetables />,
+          },
+          {
+            path: "/timetables/:uid/rooms",
+            element: <Rooms />,
           },
         ],
       },
