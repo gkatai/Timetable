@@ -26,14 +26,10 @@ export type Class = {
 export type TimetableFlat = {
   uid: string;
   name: string;
-  rooms: string[];
-  teachers: string[];
-  subjects: string[];
-  classes: string[];
 };
 
-export type Timetable = {
-  props: TimetableFlat;
+export type TimetableDeep = {
+  uid: string;
   rooms: Room[];
   teachers: Teacher[];
   subjects: Subject[];

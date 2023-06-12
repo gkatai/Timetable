@@ -1,9 +1,9 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ColumnDef } from "@tanstack/react-table";
 import { User } from "firebase/auth";
-import { child, push, ref, remove, update } from "firebase/database";
-import { useEffect, useState } from "react";
-import { useListVals } from "react-firebase-hooks/database";
+import { push, ref, remove, update } from "firebase/database";
+import { useEffect, useMemo, useState } from "react";
+import { useList } from "react-firebase-hooks/database";
 import { useForm } from "react-hook-form";
 import { AiOutlineExclamationCircle } from "react-icons/ai";
 import { useOutletContext } from "react-router-dom";
@@ -17,9 +17,16 @@ import { TimetableFlat } from "./timetable-types";
 
 export default function Timetables() {
   const currentUser: User = useOutletContext();
-  const [values, loading, error] = useListVals<TimetableFlat>(
-    ref(database, `users/${currentUser.uid}/timetables-flat`)
+  const [values, loading, error] = useList(
+    ref(database, `users/${currentUser.uid}/timetables/list`)
   );
+  const data = useMemo(() => {
+    if (!values) {
+      return [];
+    } else {
+      return values.map((v) => ({ uid: v.key, ...v.val() }));
+    }
+  }, [values]);
 
   if (error) {
     return (
@@ -34,7 +41,7 @@ export default function Timetables() {
     return <div>Loading...</div>;
   }
 
-  return <TimeTablesLoaded data={values} currentUserId={currentUser.uid} />;
+  return <TimeTablesLoaded data={data} currentUserId={currentUser.uid} />;
 }
 
 const schema = z.object({
@@ -112,34 +119,27 @@ function Form({ currentUserId, defaultValues }: FormProps) {
   });
 
   useEffect(() => {
-    console.log(defaultValues);
     reset(defaultValues);
   }, [reset, defaultValues]);
 
   const handleCreateNew = (data: FormValues) => {
-    const timetablesFlatRef = ref(
+    const timetableRef = ref(
       database,
-      `users/${currentUserId}/timetables-flat`
+      `users/${currentUserId}/timetables/list`
     );
     return new Promise<void>((resolve, reject) => {
-      let timetableKey: string | null;
       if (defaultValues.uid) {
-        timetableKey = defaultValues.uid;
+        update(
+          ref(
+            database,
+            `users/${currentUserId}/timetables/list/${defaultValues.uid}`
+          ),
+          { name: data.name }
+        )
+          .then(() => resolve())
+          .catch((error) => reject(error));
       } else {
-        timetableKey = push(child(timetablesFlatRef, "timetables-flat")).key;
-      }
-
-      if (timetableKey) {
-        const updates: Record<string, TimetableFlat> = {};
-        updates[timetableKey] = {
-          uid: timetableKey,
-          name: data.name,
-          rooms: [],
-          teachers: [],
-          subjects: [],
-          classes: [],
-        };
-        update(timetablesFlatRef, updates)
+        push(timetableRef, { name: data.name })
           .then(() => resolve())
           .catch((error) => reject(error));
       }
