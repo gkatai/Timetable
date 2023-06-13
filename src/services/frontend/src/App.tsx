@@ -31,27 +31,27 @@ const router = createBrowserRouter([
             element: <Timetables />,
           },
           {
-            path: "/timetables/:uid",
+            path: "/timetables/:timetableUid",
             element: <Wizard />,
             children: [
               {
-                path: "/timetables/:uid/rooms",
+                path: "/timetables/:timetableUid/rooms",
                 element: <Rooms />,
               },
               {
-                path: "/timetables/:uid/teachers",
+                path: "/timetables/:timetableUid/teachers",
                 element: <Teachers />,
               },
               {
-                path: "/timetables/:uid/subjects",
+                path: "/timetables/:timetableUid/subjects",
                 element: <Subjects />,
               },
               {
-                path: "/timetables/:uid/classes",
+                path: "/timetables/:timetableUid/classes",
                 element: <Classes />,
               },
               {
-                path: "/timetables/:uid/generate",
+                path: "/timetables/:timetableUid/generate",
                 element: <Generate />,
               },
             ],

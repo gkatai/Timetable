@@ -17,16 +17,16 @@ import { TimetableFlat } from "./timetable-types";
 
 export default function Timetables() {
   const currentUser: User = useOutletContext();
-  const [values, loading, error] = useList(
+  const [timetables, loading, error] = useList(
     ref(database, `users/${currentUser.uid}/timetables/list`)
   );
   const data = useMemo(() => {
-    if (!values) {
+    if (!timetables) {
       return [];
     } else {
-      return values.map((v) => ({ uid: v.key, ...v.val() }));
+      return timetables.map((t) => ({ uid: t.key, ...t.val() }));
     }
-  }, [values]);
+  }, [timetables]);
 
   if (error) {
     return (
@@ -37,7 +37,7 @@ export default function Timetables() {
     );
   }
 
-  if (loading || !values) {
+  if (loading || !timetables) {
     return <div>Loading...</div>;
   }
 
@@ -60,7 +60,6 @@ const columns: ColumnDef<TimetableFlat>[] = [
   {
     header: "Name",
     accessorKey: "name",
-    footer: (props) => props.column.id,
   },
 ];
 
@@ -97,7 +96,6 @@ function TimeTablesLoaded({ data, currentUserId }: TimetablesLoadedProps) {
       </button>
       <Form currentUserId={currentUserId} defaultValues={defaultValues} />
       <SimpleTable
-        title="Timetables"
         data={data}
         columns={columns}
         editAction={(uid) => handleEdit(uid)}
@@ -122,11 +120,7 @@ function Form({ currentUserId, defaultValues }: FormProps) {
     reset(defaultValues);
   }, [reset, defaultValues]);
 
-  const handleCreateNew = (data: FormValues) => {
-    const timetableRef = ref(
-      database,
-      `users/${currentUserId}/timetables/list`
-    );
+  const handleSave = (data: FormValues) => {
     return new Promise<void>((resolve, reject) => {
       if (defaultValues.uid) {
         update(
@@ -139,7 +133,9 @@ function Form({ currentUserId, defaultValues }: FormProps) {
           .then(() => resolve())
           .catch((error) => reject(error));
       } else {
-        push(timetableRef, { name: data.name })
+        push(ref(database, `users/${currentUserId}/timetables/list`), {
+          name: data.name,
+        })
           .then(() => resolve())
           .catch((error) => reject(error));
       }
@@ -147,8 +143,8 @@ function Form({ currentUserId, defaultValues }: FormProps) {
   };
 
   return (
-    <Modal save={handleCreateNew} reset={reset} handleSubmit={handleSubmit}>
-      <Input label="Email" error={formState.errors["name"]}>
+    <Modal save={handleSave} reset={reset} handleSubmit={handleSubmit}>
+      <Input label="Name" error={formState.errors["name"]}>
         <input
           type="text"
           className="input-bordered input w-full"

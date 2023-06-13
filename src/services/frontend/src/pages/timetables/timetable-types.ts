@@ -1,16 +1,19 @@
 export type Room = {
   uid: string;
   name: string;
+  schedule: string;
 };
 
 export type Teacher = {
   uid: string;
   name: string;
+  schedule: string;
 };
 
 export type Subject = {
   uid: string;
   name: string;
+  rooms: string[];
 };
 
 export type Lesson = {
@@ -28,7 +31,7 @@ export type TimetableFlat = {
   name: string;
 };
 
-export type TimetableDeep = {
+export type Timetable = {
   uid: string;
   rooms: Room[];
   teachers: Teacher[];

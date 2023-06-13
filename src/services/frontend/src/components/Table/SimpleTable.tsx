@@ -12,7 +12,6 @@ import { BiDownArrow, BiUpArrow } from "react-icons/bi";
 import { Link } from "react-router-dom";
 
 type SimpleTableProps<T> = {
-  title: string;
   data: T[];
   columns: ColumnDef<T, any>[];
   editAction: (id: string) => void;
@@ -21,7 +20,6 @@ type SimpleTableProps<T> = {
 };
 
 export default function SimpleTable<T>({
-  title,
   data,
   columns,
   editAction,
@@ -43,7 +41,6 @@ export default function SimpleTable<T>({
 
   return (
     <div className="overflow-x-auto">
-      <h1 className="text-2xl font-bold text-center pt-2 pb-4">{title}</h1>
       <table className="table">
         <thead>
           {table.getHeaderGroups().map((headerGroup) => (
