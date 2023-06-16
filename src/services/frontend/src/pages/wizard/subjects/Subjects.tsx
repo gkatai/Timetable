@@ -1,3 +1,218 @@
+import { zodResolver } from "@hookform/resolvers/zod";
+import { ColumnDef } from "@tanstack/react-table";
+import { User } from "firebase/auth";
+import { push, ref, remove, update } from "firebase/database";
+import { useEffect, useMemo, useState } from "react";
+import { useForm } from "react-hook-form";
+import { AiOutlineExclamationCircle } from "react-icons/ai";
+import { Navigate, useOutletContext, useParams } from "react-router-dom";
+import { z } from "zod";
+
+import Input from "../../../components/Input";
+import { Modal } from "../../../components/Modal";
+import SimpleTable from "../../../components/Table/SimpleTable";
+import { database } from "../../../config/firebase";
+import { Room, Subject, subjectSchema } from "../../timetables/timetable-types";
+import { useGetData } from "./subject-helpers";
+
+type SubjectData = { subjects: Subject[]; rooms: Room[] };
+
 export default function Subjects() {
-  return <div>Subjects</div>;
+  const { timetableUid } = useParams();
+  const currentUser: User = useOutletContext();
+
+  const [data, loading, error] = useGetData(currentUser.uid, timetableUid);
+
+  const mappedData = useMemo<SubjectData>(() => {
+    if (!data.subjects || !data.rooms) {
+      return {
+        subjects: [],
+        rooms: [],
+      };
+    }
+
+    return {
+      subjects: data.subjects.map((s) => ({ uid: s.key, ...s.val() })),
+      rooms: data.rooms.map((r) => ({ uid: r.key, ...r.val() })),
+    };
+  }, [data]);
+
+  if (!timetableUid) {
+    return <Navigate to="/timetables" />;
+  }
+
+  if (error) {
+    return (
+      <div className="alert alert-error">
+        <AiOutlineExclamationCircle />
+        <span>Error! {error}</span>
+      </div>
+    );
+  }
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
+  return (
+    <SubjectsLoaded
+      data={mappedData}
+      currentUserId={currentUser.uid}
+      timetableId={timetableUid}
+    />
+  );
+}
+
+type FormValues = z.infer<typeof subjectSchema>;
+
+const columns: ColumnDef<Subject>[] = [
+  {
+    header: "Name",
+    accessorKey: "name",
+  },
+];
+
+type SubjectsLoadedProps = {
+  data: SubjectData;
+  currentUserId: string;
+  timetableId: string;
+};
+
+function SubjectsLoaded({
+  data,
+  currentUserId,
+  timetableId,
+}: SubjectsLoadedProps) {
+  const [defaultValues, setDefaultValues] = useState<FormValues>({
+    name: "",
+    occupation: "free",
+    rooms: [],
+  });
+
+  const handleCreate = () => {
+    window["form-modal"].showModal();
+    setDefaultValues({ name: "", occupation: "free", rooms: [] });
+  };
+  const handleEdit = (uid: string) => {
+    const foundSubject = data.subjects.find((d) => d.uid === uid);
+
+    if (foundSubject) {
+      window["form-modal"].showModal();
+      setDefaultValues({
+        uid,
+        name: foundSubject.name,
+        occupation: foundSubject.occupation,
+        rooms: foundSubject.rooms,
+      });
+    }
+  };
+  const handleDelete = (uid: string) => {
+    const timetableFlatRef = ref(
+      database,
+      `users/${currentUserId}/timetables/objects/${timetableId}/subjects/${uid}`
+    );
+
+    remove(timetableFlatRef);
+  };
+
+  return (
+    <>
+      <Form
+        currentUserId={currentUserId}
+        defaultValues={defaultValues}
+        timetableId={timetableId}
+        rooms={data.rooms}
+      />
+      <SimpleTable
+        data={data.subjects}
+        columns={columns}
+        createAction={handleCreate}
+        editAction={(uid) => handleEdit(uid)}
+        deleteAction={(uid) => handleDelete(uid)}
+        hasOpen={false}
+      />
+    </>
+  );
+}
+
+type FormProps = {
+  currentUserId: string;
+  defaultValues: FormValues;
+  timetableId: string;
+  rooms: Room[];
+};
+
+function Form({ currentUserId, defaultValues, timetableId, rooms }: FormProps) {
+  const { formState, register, reset, handleSubmit } = useForm<FormValues>({
+    resolver: zodResolver(subjectSchema),
+  });
+
+  useEffect(() => {
+    reset(defaultValues);
+  }, [reset, defaultValues]);
+
+  const handleSave = (data: FormValues) => {
+    return new Promise<void>((resolve, reject) => {
+      if (defaultValues.uid) {
+        update(
+          ref(
+            database,
+            `users/${currentUserId}/timetables/objects/${timetableId}/subjects/${defaultValues.uid}`
+          ),
+          { name: data.name, occupation: data.occupation, rooms: data.rooms }
+        )
+          .then(() => resolve())
+          .catch((error) => reject(error));
+      } else {
+        push(
+          ref(
+            database,
+            `users/${currentUserId}/timetables/objects/${timetableId}/subjects`
+          ),
+          {
+            name: data.name,
+            occupation: data.occupation,
+            rooms: data.rooms,
+          }
+        )
+          .then(() => resolve())
+          .catch((error) => reject(error));
+      }
+    });
+  };
+
+  return (
+    <Modal save={handleSave} reset={reset} handleSubmit={handleSubmit}>
+      <Input label="Name" error={formState.errors["name"]}>
+        <input
+          type="text"
+          className="input-bordered input w-full"
+          {...register("name")}
+        />
+      </Input>
+      <Input label="Occupation" error={formState.errors["occupation"]}>
+        <select
+          className="select select-bordered w-full"
+          {...register("occupation")}
+        >
+          <option value="free">Free</option>
+          <option value="occupied">Occupied</option>
+          <option value="registered">Registered</option>
+        </select>
+      </Input>
+      <Input label="Rooms" error={formState.errors["rooms"]}>
+        <select
+          className="select select-bordered w-full"
+          multiple
+          {...register("rooms")}
+        >
+          {rooms.map((room) => (
+            <option key={room.uid} value={room.uid}>
+              {room.name}
+            </option>
+          ))}
+        </select>
+      </Input>
+    </Modal>
+  );
 }

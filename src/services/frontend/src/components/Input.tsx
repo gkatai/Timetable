@@ -2,7 +2,11 @@ import { FieldError, FieldErrorsImpl, Merge } from "react-hook-form";
 
 type InputProps = {
   label: string;
-  error: FieldError | Merge<FieldError, FieldErrorsImpl<any>> | undefined;
+  error:
+    | FieldError
+    | Merge<FieldError, FieldErrorsImpl<any>>
+    | Merge<FieldError, (FieldError | undefined)[]>
+    | undefined;
   children: React.ReactElement;
 };
 

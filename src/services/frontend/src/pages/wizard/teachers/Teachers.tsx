@@ -148,8 +148,6 @@ function Form({ currentUserId, defaultValues, timetableId }: FormProps) {
     resolver: zodResolver(schema),
   });
 
-  console.log("id", timetableId);
-
   useEffect(() => {
     reset(defaultValues);
   }, [reset, defaultValues]);
