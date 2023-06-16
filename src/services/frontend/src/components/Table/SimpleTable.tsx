@@ -1,6 +1,5 @@
 import {
   ColumnDef,
-  Row,
   SortingState,
   flexRender,
   getCoreRowModel,
@@ -14,6 +13,7 @@ import { Link } from "react-router-dom";
 type SimpleTableProps<T> = {
   data: T[];
   columns: ColumnDef<T, any>[];
+  createAction: () => void;
   editAction: (id: string) => void;
   deleteAction: (is: string) => void;
   hasOpen?: boolean;
@@ -22,6 +22,7 @@ type SimpleTableProps<T> = {
 export default function SimpleTable<T>({
   data,
   columns,
+  createAction,
   editAction,
   deleteAction,
   hasOpen = false,
@@ -70,6 +71,11 @@ export default function SimpleTable<T>({
                   </th>
                 );
               })}
+              <th className="float-right">
+                <button className="btn btn-primary" onClick={createAction}>
+                  Create new
+                </button>
+              </th>
             </tr>
           ))}
         </thead>

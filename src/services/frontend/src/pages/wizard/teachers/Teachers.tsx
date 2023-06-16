@@ -1,7 +1,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ColumnDef } from "@tanstack/react-table";
 import { User } from "firebase/auth";
-import { push, ref, update } from "firebase/database";
+import { push, ref, remove, update } from "firebase/database";
 import { useEffect, useMemo, useState } from "react";
 import { useList } from "react-firebase-hooks/database";
 import { useForm } from "react-hook-form";
@@ -109,13 +109,17 @@ function TeachersLoaded({
       });
     }
   };
-  const handleDelete = (uid: string) => console.log("delete");
+  const handleDelete = (uid: string) => {
+    const timetableFlatRef = ref(
+      database,
+      `users/${currentUserId}/timetables/objects/${timetableId}/teachers/${uid}`
+    );
+
+    remove(timetableFlatRef);
+  };
 
   return (
     <>
-      <button className="btn btn-primary" onClick={handleCreate}>
-        Create new
-      </button>
       <Form
         currentUserId={currentUserId}
         defaultValues={defaultValues}
@@ -124,9 +128,10 @@ function TeachersLoaded({
       <SimpleTable
         data={data}
         columns={columns}
+        createAction={handleCreate}
         editAction={(uid) => handleEdit(uid)}
         deleteAction={(uid) => handleDelete(uid)}
-        hasOpen={true}
+        hasOpen={false}
       />
     </>
   );
