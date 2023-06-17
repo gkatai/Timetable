@@ -3,6 +3,7 @@ import { ColumnDef } from "@tanstack/react-table";
 import { User } from "firebase/auth";
 import { push, ref, remove, update } from "firebase/database";
 import { useEffect, useMemo, useState } from "react";
+import { useList } from "react-firebase-hooks/database";
 import { useForm } from "react-hook-form";
 import { AiOutlineExclamationCircle } from "react-icons/ai";
 import { Link, Navigate, useOutletContext, useParams } from "react-router-dom";
@@ -12,45 +13,26 @@ import Input from "../../../components/Input";
 import { Modal } from "../../../components/Modal";
 import SimpleTable from "../../../components/Table/SimpleTable";
 import { database } from "../../../config/firebase";
-import {
-  Class,
-  Room,
-  Subject,
-  Teacher,
-  classesSchema,
-} from "../../timetables/timetable-types";
-import { useGetData } from "./class-helpers";
-
-type ClassData = {
-  classes: Class[];
-  rooms: Room[];
-  teachers: Teacher[];
-  subjects: Subject[];
-};
+import { Class, classesSchema } from "../../timetables/timetable-types";
 
 export default function Classes() {
   const { timetableUid } = useParams();
   const currentUser: User = useOutletContext();
 
-  const [data, loading, error] = useGetData(currentUser.uid, timetableUid);
+  const [classes, loading, error] = useList(
+    ref(
+      database,
+      `users/${currentUser.uid}/timetables/objects/${timetableUid}/classes`
+    )
+  );
 
-  const mappedData = useMemo<ClassData>(() => {
-    if (!data.classes || !data.rooms || !data.teachers || !data.subjects) {
-      return {
-        classes: [],
-        rooms: [],
-        teachers: [],
-        subjects: [],
-      };
+  const mappedData = useMemo<Class[]>(() => {
+    if (!classes) {
+      return [];
     }
 
-    return {
-      classes: data.classes.map((c) => ({ uid: c.key, ...c.val() })),
-      rooms: data.rooms.map((r) => ({ uid: r.key, ...r.val() })),
-      teachers: data.teachers.map((t) => ({ uid: t.key, ...t.val() })),
-      subjects: data.subjects.map((s) => ({ uid: s.key, ...s.val() })),
-    };
-  }, [data]);
+    return classes.map((c) => ({ uid: c.key, ...c.val() }));
+  }, [classes]);
 
   if (!timetableUid) {
     return <Navigate to="/timetables" />;
@@ -60,7 +42,7 @@ export default function Classes() {
     return (
       <div className="alert alert-error">
         <AiOutlineExclamationCircle />
-        <span>Error! {error}</span>
+        <span>Error! {error.message}</span>
       </div>
     );
   }
@@ -69,11 +51,9 @@ export default function Classes() {
     return <div>Loading...</div>;
   }
 
-  console.log(mappedData);
-
   return (
     <ClassesLoaded
-      data={mappedData}
+      classes={mappedData}
       currentUserId={currentUser.uid}
       timetableId={timetableUid}
     />
@@ -90,13 +70,13 @@ const columns: ColumnDef<Class>[] = [
 ];
 
 type ClassesLoadedProps = {
-  data: ClassData;
+  classes: Class[];
   currentUserId: string;
   timetableId: string;
 };
 
 function ClassesLoaded({
-  data,
+  classes,
   currentUserId,
   timetableId,
 }: ClassesLoadedProps) {
@@ -110,7 +90,7 @@ function ClassesLoaded({
     setDefaultValues({ name: "", lessons: [] });
   };
   const handleEdit = (uid: string) => {
-    const foundClass = data.classes.find((d) => d.uid === uid);
+    const foundClass = classes.find((d) => d.uid === uid);
 
     if (foundClass) {
       window["form-modal"].showModal();
@@ -124,7 +104,7 @@ function ClassesLoaded({
   const handleDelete = (uid: string) => {
     const timetableFlatRef = ref(
       database,
-      `users/${currentUserId}/timetables/objects/${timetableId}/classes/${uid}`
+      `users/${currentUserId}/timetables/objects/${timetableId}/classes/${uid}?shallow=true`
     );
 
     remove(timetableFlatRef);
@@ -138,7 +118,7 @@ function ClassesLoaded({
         timetableId={timetableId}
       />
       <SimpleTable
-        data={data.classes}
+        data={classes}
         columns={columns}
         createAction={handleCreate}
         deleteAction={handleDelete}

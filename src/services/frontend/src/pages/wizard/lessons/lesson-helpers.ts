@@ -3,19 +3,27 @@ import { useList } from "react-firebase-hooks/database";
 
 import { database } from "../../../config/firebase";
 
-export function useGetData(
+export function useGetLessons(
   currentUserId: string,
-  timetableId?: string
+  timetableId?: string,
+  classId?: string
 ): [
   {
+    lessons: DataSnapshot[] | undefined;
     classes: DataSnapshot[] | undefined;
-    rooms: DataSnapshot[] | undefined;
     teachers: DataSnapshot[] | undefined;
     subjects: DataSnapshot[] | undefined;
   },
   boolean,
   string | null
 ] {
+  const [lessons, lessonsLoading, lessonsError] = useList(
+    ref(
+      database,
+      `users/${currentUserId}/timetables/objects/${timetableId}/classes/${classId}/lessons`
+    )
+  );
+
   const [classes, classesLoading, classesError] = useList(
     ref(
       database,
@@ -37,19 +45,12 @@ export function useGetData(
     )
   );
 
-  const [rooms, roomsLoading, roomsError] = useList(
-    ref(
-      database,
-      `users/${currentUserId}/timetables/objects/${timetableId}/rooms`
-    )
-  );
-
-  const data = { classes, teachers, subjects, rooms };
+  const data = { lessons, teachers, subjects, classes };
   const loading =
-    classesLoading || teachersLoading || subjectsLoading || roomsLoading;
+    lessonsLoading || teachersLoading || subjectsLoading || classesLoading;
   let error: string | null = null;
 
-  if (classesError || teachersError || subjectsError || roomsError) {
+  if (lessonsError || teachersError || subjectsError || classesError) {
     error = "Error fetching data!";
   }
 
