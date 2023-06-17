@@ -8,15 +8,14 @@ import {
 } from "@tanstack/react-table";
 import { useState } from "react";
 import { BiDownArrow, BiUpArrow } from "react-icons/bi";
-import { Link } from "react-router-dom";
 
 type SimpleTableProps<T> = {
   data: T[];
   columns: ColumnDef<T, any>[];
   createAction: () => void;
   editAction: (id: string) => void;
-  deleteAction: (is: string) => void;
-  hasOpen?: boolean;
+  deleteAction: (id: string) => void;
+  openLink: (id: string) => React.ReactElement | null;
 };
 
 export default function SimpleTable<T>({
@@ -25,7 +24,7 @@ export default function SimpleTable<T>({
   createAction,
   editAction,
   deleteAction,
-  hasOpen = false,
+  openLink = null,
 }: SimpleTableProps<T>) {
   const [sorting, setSorting] = useState<SortingState>([]);
 
@@ -106,14 +105,7 @@ export default function SimpleTable<T>({
                   >
                     Delete
                   </button>
-                  {hasOpen && (
-                    <Link
-                      className="btn btn-secondary"
-                      to={`/timetables/${row.original["uid"]}/rooms`}
-                    >
-                      Open
-                    </Link>
-                  )}
+                  {openLink && openLink(row.original["uid"])}
                 </td>
               </tr>
             );

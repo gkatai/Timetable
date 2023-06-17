@@ -9,6 +9,7 @@ import Timetables from "./pages/timetables/Timetables";
 import Wizard from "./pages/wizard/Wizard";
 import Classes from "./pages/wizard/classes/Classes";
 import Generate from "./pages/wizard/generate/Generate";
+import Lessons from "./pages/wizard/lessons/Lessons";
 import Rooms from "./pages/wizard/rooms/Rooms";
 import Subjects from "./pages/wizard/subjects/Subjects";
 import Teachers from "./pages/wizard/teachers/Teachers";
@@ -49,6 +50,10 @@ const router = createBrowserRouter([
               {
                 path: "/timetables/:timetableUid/classes",
                 element: <Classes />,
+              },
+              {
+                path: "/timetables/:timetableUid/classes/:classId/lessons",
+                element: <Lessons />,
               },
               {
                 path: "/timetables/:timetableUid/generate",

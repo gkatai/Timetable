@@ -6,7 +6,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useList } from "react-firebase-hooks/database";
 import { useForm } from "react-hook-form";
 import { AiOutlineExclamationCircle } from "react-icons/ai";
-import { useOutletContext } from "react-router-dom";
+import { Link, useOutletContext } from "react-router-dom";
 import { z } from "zod";
 
 import Input from "../../components/Input";
@@ -91,16 +91,18 @@ function TimeTablesLoaded({ data, currentUserId }: TimetablesLoadedProps) {
 
   return (
     <>
-      <button className="btn btn-primary" onClick={handleCreate}>
-        Create new
-      </button>
       <Form currentUserId={currentUserId} defaultValues={defaultValues} />
       <SimpleTable
         data={data}
         columns={columns}
+        createAction={handleCreate}
         editAction={(uid) => handleEdit(uid)}
         deleteAction={(uid) => handleDelete(uid)}
-        hasOpen={true}
+        openLink={(uid) => (
+          <Link className="btn btn-secondary" to={`/timetables/${uid}/rooms`}>
+            Open
+          </Link>
+        )}
       />
     </>
   );

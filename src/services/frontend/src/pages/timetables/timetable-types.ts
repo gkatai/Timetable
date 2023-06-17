@@ -29,15 +29,19 @@ export const subjectSchema = z.object({
 
 export type Subject = z.infer<typeof subjectSchema>;
 
-export type Lesson = {
-  uid: string;
-};
+export const lessonsSchema = z.object({
+  uid: z.string().optional(),
+});
 
-export type Class = {
-  uid: string;
-  name: string;
-  lessons: Lesson[];
-};
+export type Lesson = z.infer<typeof lessonsSchema>;
+
+export const classesSchema = z.object({
+  uid: z.string().optional(),
+  name: z.string().min(2),
+  lessons: z.array(lessonsSchema),
+});
+
+export type Class = z.infer<typeof classesSchema>;
 
 export type TimetableFlat = {
   uid: string;
