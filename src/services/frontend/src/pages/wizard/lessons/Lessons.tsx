@@ -94,13 +94,6 @@ export default function Lessons() {
 
 type FormValues = z.infer<typeof lessonsSchema>;
 
-const columns: ColumnDef<Lesson>[] = [
-  {
-    header: "Name",
-    accessorKey: "name",
-  },
-];
-
 type LessonsLoadedProps = {
   data: LessonData;
   currentUserId: string;
@@ -123,7 +116,30 @@ function LessonsLoaded({
     firstSubject: "",
     firstReservation: "free",
     divided: false,
+    secondTeacher: "",
+    secondSubject: "",
+    secondOtherClass: "",
+    secondReservation: "free",
   });
+
+  const columns = useMemo<ColumnDef<Lesson>[]>(
+    () => [
+      {
+        header: "Number of lessons",
+        accessorKey: "numberOfLessons",
+      },
+      {
+        header: "First teacher",
+        accessorFn: (val) => {
+          const foundTeacher = data.teachers.find(
+            (t) => t.uid === val.firstTeacher
+          );
+          return foundTeacher ? foundTeacher.name : "";
+        },
+      },
+    ],
+    [data.teachers]
+  );
 
   const handleCreate = () => {
     window["form-modal"].showModal();
@@ -137,6 +153,10 @@ function LessonsLoaded({
       firstOtherClass: "",
       firstReservation: "free",
       divided: false,
+      secondTeacher: "",
+      secondSubject: "",
+      secondOtherClass: "",
+      secondReservation: "free",
     });
   };
   const handleEdit = (uid: string) => {
@@ -228,7 +248,7 @@ function Form({
             database,
             `users/${currentUserId}/timetables/objects/${timetableId}/classes/${classId}/lessons/${defaultValues.uid}`
           ),
-          {}
+          data
         )
           .then(() => resolve())
           .catch((error) => reject(error));
@@ -236,9 +256,9 @@ function Form({
         push(
           ref(
             database,
-            `users/${currentUserId}/timetables/objects/${timetableId}/classes/${classId}/timetables`
+            `users/${currentUserId}/timetables/objects/${timetableId}/classes/${classId}/lessons`
           ),
-          {}
+          data
         )
           .then(() => resolve())
           .catch((error) => reject(error));
@@ -347,7 +367,68 @@ function Form({
         <input type="checkbox" className="toggle" {...register("divided")} />
       </div>
 
-      {isDivided && <></>}
+      {isDivided && (
+        <>
+          <Input label="Second teacher" error={errors["secondTeacher"]}>
+            <select
+              className="select select-bordered w-full"
+              {...register("secondTeacher")}
+            >
+              <option value="" disabled>
+                Please select a teacher
+              </option>
+              {teachers.map((teacher) => (
+                <option key={teacher.uid} value={teacher.uid}>
+                  {teacher.name}
+                </option>
+              ))}
+            </select>
+          </Input>
+
+          <Input label="Second subject" error={errors["secondSubject"]}>
+            <select
+              className="select select-bordered w-full"
+              {...register("secondSubject")}
+            >
+              <option value="" disabled>
+                Please select a subject
+              </option>
+              {subjects.map((subject) => (
+                <option key={subject.uid} value={subject.uid}>
+                  {subject.name}
+                </option>
+              ))}
+            </select>
+          </Input>
+
+          <Input label="Second other class" error={errors["secondOtherClass"]}>
+            <select
+              className="select select-bordered w-full"
+              {...register("secondOtherClass")}
+            >
+              <option value="" disabled>
+                Please select a class
+              </option>
+              {classes.map((_class) => (
+                <option key={_class.uid} value={_class.uid}>
+                  {_class.name}
+                </option>
+              ))}
+            </select>
+          </Input>
+
+          <Input label="Second reservation" error={errors["secondReservation"]}>
+            <select
+              className="select select-bordered w-full"
+              {...register("secondReservation")}
+            >
+              <option value="free">Free</option>
+              <option value="registered">Registered</option>
+              <option value="mandatory">Mandatory</option>
+            </select>
+          </Input>
+        </>
+      )}
     </Modal>
   );
 }
