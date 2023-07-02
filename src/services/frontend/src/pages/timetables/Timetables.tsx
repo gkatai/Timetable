@@ -2,10 +2,9 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { ColumnDef } from "@tanstack/react-table";
 import { User } from "firebase/auth";
 import { push, ref, remove, update } from "firebase/database";
-import { useEffect, useMemo, useState } from "react";
-import { useList } from "react-firebase-hooks/database";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
-import { AiOutlineExclamationCircle } from "react-icons/ai";
+import { useSelector } from "react-redux";
 import { Link, useOutletContext } from "react-router-dom";
 import { z } from "zod";
 
@@ -13,35 +12,30 @@ import Input from "../../components/Input";
 import { Modal } from "../../components/Modal";
 import SimpleTable from "../../components/Table/SimpleTable";
 import { database } from "../../config/firebase";
-import { TimetableFlat } from "./timetable-types";
+import { RootState } from "../../store/store";
+import { Timetable } from "./timetable-types";
 
 export default function Timetables() {
   const currentUser: User = useOutletContext();
-  const [timetables, loading, error] = useList(
-    ref(database, `users/${currentUser.uid}/timetables/list`)
-  );
-  const data = useMemo(() => {
-    if (!timetables) {
-      return [];
-    } else {
-      return timetables.map((t) => ({ uid: t.key, ...t.val() }));
-    }
-  }, [timetables]);
+  const timetablesState = useSelector((state: RootState) => state.timetables);
 
-  if (error) {
-    return (
-      <div className="alert alert-error">
-        <AiOutlineExclamationCircle />
-        <span>Error! {error.toString()}</span>
-      </div>
-    );
-  }
-
-  if (loading || !timetables) {
+  if (timetablesState.kind === "timetables-pending") {
     return <div>Loading...</div>;
   }
 
-  return <TimeTablesLoaded data={data} currentUserId={currentUser.uid} />;
+  return (
+    <TimeTablesLoaded
+      data={mapTimetables(timetablesState.data)}
+      currentUserId={currentUser.uid}
+    />
+  );
+}
+
+function mapTimetables(timetables: Timetable[]): TimetableFlat[] {
+  return timetables.map((tt) => ({
+    uid: tt.uid,
+    name: tt.name,
+  }));
 }
 
 const schema = z.object({
@@ -50,6 +44,11 @@ const schema = z.object({
 });
 
 type FormValues = z.infer<typeof schema>;
+
+type TimetableFlat = {
+  uid: string;
+  name: string;
+};
 
 type TimetablesLoadedProps = {
   data: TimetableFlat[];
@@ -81,12 +80,12 @@ function TimeTablesLoaded({ data, currentUserId }: TimetablesLoadedProps) {
   };
 
   const handleDelete = (uid: string) => {
-    const timetableFlatRef = ref(
+    const timetableRef = ref(
       database,
-      `users/${currentUserId}/timetables-flat/${uid}`
+      `users/${currentUserId}/timetables/${uid}`
     );
 
-    remove(timetableFlatRef);
+    remove(timetableRef);
   };
 
   return (
@@ -128,14 +127,14 @@ function Form({ currentUserId, defaultValues }: FormProps) {
         update(
           ref(
             database,
-            `users/${currentUserId}/timetables/list/${defaultValues.uid}`
+            `users/${currentUserId}/timetables/${defaultValues.uid}`
           ),
           { name: data.name }
         )
           .then(() => resolve())
           .catch((error) => reject(error));
       } else {
-        push(ref(database, `users/${currentUserId}/timetables/list`), {
+        push(ref(database, `users/${currentUserId}/timetables`), {
           name: data.name,
         })
           .then(() => resolve())

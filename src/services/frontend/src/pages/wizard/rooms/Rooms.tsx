@@ -2,10 +2,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { ColumnDef } from "@tanstack/react-table";
 import { User } from "firebase/auth";
 import { push, ref, remove, update } from "firebase/database";
-import { useEffect, useMemo, useState } from "react";
-import { useList } from "react-firebase-hooks/database";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
-import { AiOutlineExclamationCircle } from "react-icons/ai";
 import { Navigate, useOutletContext, useParams } from "react-router-dom";
 import { z } from "zod";
 
@@ -13,46 +11,22 @@ import Input from "../../../components/Input";
 import { Modal } from "../../../components/Modal";
 import SimpleTable from "../../../components/Table/SimpleTable";
 import { database } from "../../../config/firebase";
-import { Room } from "../../timetables/timetable-types";
+import { Room, Timetable } from "../../timetables/timetable-types";
 
 export default function Rooms() {
   const { timetableUid } = useParams();
-  const currentUser: User = useOutletContext();
-  const [rooms, loading, error] = useList(
-    ref(
-      database,
-      `users/${currentUser.uid}/timetables/objects/${timetableUid}/rooms`
-    )
-  );
-
-  const data = useMemo(() => {
-    if (!rooms) {
-      return [];
-    }
-
-    return rooms.map((r) => ({ uid: r.key, ...r.val() }));
-  }, [rooms]);
+  const {
+    currentUser,
+    timetable,
+  }: { currentUser: User; timetable: Timetable } = useOutletContext();
 
   if (!timetableUid) {
     return <Navigate to="/timetables" />;
   }
 
-  if (error) {
-    return (
-      <div className="alert alert-error">
-        <AiOutlineExclamationCircle />
-        <span>Error! {error.toString()}</span>
-      </div>
-    );
-  }
-
-  if (loading || !rooms) {
-    return <div>Loading...</div>;
-  }
-
   return (
     <RoomsLoaded
-      data={data}
+      data={timetable.rooms || []}
       currentUserId={currentUser.uid}
       timetableId={timetableUid}
     />
@@ -67,7 +41,7 @@ const schema = z.object({
 
 type FormValues = z.infer<typeof schema>;
 
-const columns: ColumnDef<Room>[] = [
+const columns: ColumnDef<Room, any>[] = [
   {
     header: "Name",
     accessorKey: "name",
@@ -109,7 +83,7 @@ function RoomsLoaded({ data, currentUserId, timetableId }: RoomsLoadedProps) {
   const handleDelete = (uid: string) => {
     const timetableFlatRef = ref(
       database,
-      `users/${currentUserId}/timetables/objects/${timetableId}/rooms/${uid}`
+      `users/${currentUserId}/timetables/${timetableId}/rooms/${uid}`
     );
 
     remove(timetableFlatRef);
@@ -128,7 +102,6 @@ function RoomsLoaded({ data, currentUserId, timetableId }: RoomsLoadedProps) {
         createAction={handleCreate}
         editAction={(uid) => handleEdit(uid)}
         deleteAction={(uid) => handleDelete(uid)}
-        hasOpen={false}
       />
     </>
   );
@@ -155,7 +128,7 @@ function Form({ currentUserId, defaultValues, timetableId }: FormProps) {
         update(
           ref(
             database,
-            `users/${currentUserId}/timetables/objects/${timetableId}/rooms/${defaultValues.uid}`
+            `users/${currentUserId}/timetables/${timetableId}/rooms/${defaultValues.uid}`
           ),
           { name: data.name, schedule: data.schedule }
         )
@@ -165,7 +138,7 @@ function Form({ currentUserId, defaultValues, timetableId }: FormProps) {
         push(
           ref(
             database,
-            `users/${currentUserId}/timetables/objects/${timetableId}/rooms`
+            `users/${currentUserId}/timetables/${timetableId}/rooms`
           ),
           {
             name: data.name,

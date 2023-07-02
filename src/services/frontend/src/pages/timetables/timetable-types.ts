@@ -64,18 +64,14 @@ export type Lesson = z.infer<typeof lessonsSchema>;
 export const classesSchema = z.object({
   uid: z.string().optional(),
   name: z.string().min(2),
-  lessons: z.array(lessonsSchema),
+  lessons: z.record(lessonsSchema),
 });
 
 export type Class = z.infer<typeof classesSchema>;
 
-export type TimetableFlat = {
-  uid: string;
-  name: string;
-};
-
 export type Timetable = {
   uid: string;
+  name: string;
   rooms: Room[];
   teachers: Teacher[];
   subjects: Subject[];

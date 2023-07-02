@@ -2,9 +2,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { ColumnDef } from "@tanstack/react-table";
 import { User } from "firebase/auth";
 import { push, ref, remove, update } from "firebase/database";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
-import { AiOutlineExclamationCircle } from "react-icons/ai";
 import { Navigate, useOutletContext, useParams } from "react-router-dom";
 import { z } from "zod";
 
@@ -12,51 +11,29 @@ import Input from "../../../components/Input";
 import { Modal } from "../../../components/Modal";
 import SimpleTable from "../../../components/Table/SimpleTable";
 import { database } from "../../../config/firebase";
-import { Room, Subject, subjectSchema } from "../../timetables/timetable-types";
-import { useGetData } from "./subject-helpers";
+import {
+  Room,
+  Subject,
+  Timetable,
+  subjectSchema,
+} from "../../timetables/timetable-types";
 
 type SubjectData = { subjects: Subject[]; rooms: Room[] };
 
 export default function Subjects() {
   const { timetableUid } = useParams();
-  const currentUser: User = useOutletContext();
-
-  const [data, loading, error] = useGetData(currentUser.uid, timetableUid);
-
-  const mappedData = useMemo<SubjectData>(() => {
-    if (!data.subjects || !data.rooms) {
-      return {
-        subjects: [],
-        rooms: [],
-      };
-    }
-
-    return {
-      subjects: data.subjects.map((s) => ({ uid: s.key, ...s.val() })),
-      rooms: data.rooms.map((r) => ({ uid: r.key, ...r.val() })),
-    };
-  }, [data]);
+  const {
+    currentUser,
+    timetable,
+  }: { currentUser: User; timetable: Timetable } = useOutletContext();
 
   if (!timetableUid) {
     return <Navigate to="/timetables" />;
   }
 
-  if (error) {
-    return (
-      <div className="alert alert-error">
-        <AiOutlineExclamationCircle />
-        <span>Error! {error}</span>
-      </div>
-    );
-  }
-
-  if (loading) {
-    return <div>Loading...</div>;
-  }
-
   return (
     <SubjectsLoaded
-      data={mappedData}
+      data={{ subjects: timetable.subjects, rooms: timetable.rooms }}
       currentUserId={currentUser.uid}
       timetableId={timetableUid}
     />
@@ -109,7 +86,7 @@ function SubjectsLoaded({
   const handleDelete = (uid: string) => {
     const timetableFlatRef = ref(
       database,
-      `users/${currentUserId}/timetables/objects/${timetableId}/subjects/${uid}`
+      `users/${currentUserId}/timetables/${timetableId}/subjects/${uid}`
     );
 
     remove(timetableFlatRef);
@@ -129,7 +106,6 @@ function SubjectsLoaded({
         createAction={handleCreate}
         editAction={(uid) => handleEdit(uid)}
         deleteAction={(uid) => handleDelete(uid)}
-        hasOpen={false}
       />
     </>
   );
@@ -157,7 +133,7 @@ function Form({ currentUserId, defaultValues, timetableId, rooms }: FormProps) {
         update(
           ref(
             database,
-            `users/${currentUserId}/timetables/objects/${timetableId}/subjects/${defaultValues.uid}`
+            `users/${currentUserId}/timetables/${timetableId}/subjects/${defaultValues.uid}`
           ),
           { name: data.name, occupation: data.occupation, rooms: data.rooms }
         )
@@ -167,7 +143,7 @@ function Form({ currentUserId, defaultValues, timetableId, rooms }: FormProps) {
         push(
           ref(
             database,
-            `users/${currentUserId}/timetables/objects/${timetableId}/subjects`
+            `users/${currentUserId}/timetables/${timetableId}/subjects`
           ),
           {
             name: data.name,

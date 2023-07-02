@@ -1,3 +1,4 @@
+import { Provider } from "react-redux";
 import { RouterProvider, createBrowserRouter } from "react-router-dom";
 
 import Layout from "./components/Layout";
@@ -13,6 +14,7 @@ import Lessons from "./pages/wizard/lessons/Lessons";
 import Rooms from "./pages/wizard/rooms/Rooms";
 import Subjects from "./pages/wizard/subjects/Subjects";
 import Teachers from "./pages/wizard/teachers/Teachers";
+import { store } from "./store/store";
 
 const router = createBrowserRouter([
   {
@@ -76,7 +78,11 @@ const router = createBrowserRouter([
 ]);
 
 function App() {
-  return <RouterProvider router={router} />;
+  return (
+    <Provider store={store}>
+      <RouterProvider router={router} />
+    </Provider>
+  );
 }
 
 export default App;

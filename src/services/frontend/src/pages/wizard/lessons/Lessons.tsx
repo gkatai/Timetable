@@ -4,7 +4,6 @@ import { User } from "firebase/auth";
 import { push, ref, remove, update } from "firebase/database";
 import { useEffect, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
-import { AiOutlineExclamationCircle } from "react-icons/ai";
 import { Link, Navigate, useOutletContext, useParams } from "react-router-dom";
 import { z } from "zod";
 
@@ -17,9 +16,9 @@ import {
   Lesson,
   Subject,
   Teacher,
+  Timetable,
   lessonsSchema,
 } from "../../timetables/timetable-types";
-import { useGetLessons } from "./lesson-helpers";
 
 type LessonData = {
   lessons: Lesson[];
@@ -30,28 +29,30 @@ type LessonData = {
 
 export default function Lessons() {
   const { timetableUid, classId } = useParams();
-  const currentUser: User = useOutletContext();
-
-  const [data, loading, error] = useGetLessons(
-    currentUser.uid,
-    timetableUid,
-    classId
-  );
+  const {
+    currentUser,
+    timetable,
+  }: { currentUser: User; timetable: Timetable } = useOutletContext();
 
   const mappedData: LessonData = useMemo<LessonData>(() => {
-    if (!data.lessons || !data.classes || !data.subjects || !data.teachers) {
-      return { lessons: [], classes: [], subjects: [], teachers: [] };
+    const foundClass = timetable.classes.find((c) => c.uid === classId);
+
+    if (!classId || !foundClass) {
+      return {
+        classes: [],
+        lessons: [],
+        subjects: [],
+        teachers: [],
+      };
     }
 
     return {
-      lessons: data.lessons.map((l) => ({ uid: l.key, ...l.val() })),
-      classes: data.classes
-        .map((c) => ({ uid: c.key, ...c.val() }))
-        .filter((c) => c.uid !== classId),
-      subjects: data.subjects.map((s) => ({ uid: s.key, ...s.val() })),
-      teachers: data.teachers.map((t) => ({ uid: t.key, ...t.val() })),
+      lessons: Object.values(foundClass.lessons),
+      classes: timetable.classes,
+      subjects: timetable.subjects,
+      teachers: timetable.teachers,
     };
-  }, [data, classId]);
+  }, [timetable, classId]);
 
   if (!timetableUid) {
     return <Navigate to="/timetables" />;
@@ -59,19 +60,6 @@ export default function Lessons() {
 
   if (!classId) {
     return <Navigate to={`/timetables/${timetableUid}/classes`} />;
-  }
-
-  if (error) {
-    return (
-      <div className="alert alert-error">
-        <AiOutlineExclamationCircle />
-        <span>Error! {error}</span>
-      </div>
-    );
-  }
-
-  if (loading) {
-    return <div>Loading...</div>;
   }
 
   return (
@@ -169,7 +157,7 @@ function LessonsLoaded({
   const handleDelete = (uid: string) => {
     const timetableFlatRef = ref(
       database,
-      `users/${currentUserId}/timetables/objects/${timetableId}/classes/${uid}?shallow=true`
+      `users/${currentUserId}/timetables/${timetableId}/classes/${uid}`
     );
 
     remove(timetableFlatRef);
@@ -192,14 +180,6 @@ function LessonsLoaded({
         createAction={handleCreate}
         deleteAction={handleDelete}
         editAction={handleEdit}
-        openLink={(uid) => (
-          <Link
-            className="btn btn-secondary"
-            to={`/timetables/${timetableId}/classes/${uid}/lessons`}
-          >
-            Open
-          </Link>
-        )}
       />
     </>
   );
@@ -246,7 +226,7 @@ function Form({
         update(
           ref(
             database,
-            `users/${currentUserId}/timetables/objects/${timetableId}/classes/${classId}/lessons/${defaultValues.uid}`
+            `users/${currentUserId}/timetables/${timetableId}/classes/${classId}/lessons/${defaultValues.uid}`
           ),
           data
         )
@@ -256,7 +236,7 @@ function Form({
         push(
           ref(
             database,
-            `users/${currentUserId}/timetables/objects/${timetableId}/classes/${classId}/lessons`
+            `users/${currentUserId}/timetables/${timetableId}/classes/${classId}/lessons`
           ),
           data
         )

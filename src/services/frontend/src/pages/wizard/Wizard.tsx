@@ -1,16 +1,21 @@
 import { User } from "firebase/auth";
+import { useSelector } from "react-redux";
 import {
   Link,
+  Navigate,
   Outlet,
   useLocation,
   useOutletContext,
   useParams,
 } from "react-router-dom";
 
+import { RootState } from "../../store/store";
+
 export default function Wizard() {
   const { timetableUid } = useParams();
   const location = useLocation();
   const currentUser: User = useOutletContext();
+  const timetablesState = useSelector((state: RootState) => state.timetables);
 
   let step = 1;
   if (location.pathname.includes("rooms")) {
@@ -23,6 +28,18 @@ export default function Wizard() {
     step = 4;
   } else if (location.pathname.includes("generate")) {
     step = 5;
+  }
+
+  if (timetablesState.kind === "timetables-pending") {
+    return <div>Loading...</div>;
+  }
+
+  const foundTimetable = timetablesState.data.find(
+    (tt) => tt.uid === timetableUid
+  );
+
+  if (!foundTimetable || !timetableUid) {
+    return <Navigate to="/timetables" />;
   }
 
   return (
@@ -44,7 +61,7 @@ export default function Wizard() {
           <Link to={`/timetables/${timetableUid}/generate`}>Generate</Link>
         </li>
       </ul>
-      <Outlet context={currentUser} />
+      <Outlet context={{ currentUser, timetable: foundTimetable }} />
     </div>
   );
 }

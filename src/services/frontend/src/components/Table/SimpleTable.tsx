@@ -15,7 +15,7 @@ type SimpleTableProps<T> = {
   createAction: () => void;
   editAction: (id: string) => void;
   deleteAction: (id: string) => void;
-  openLink: (id: string) => React.ReactElement | null;
+  openLink?: (id: string) => React.ReactElement;
 };
 
 export default function SimpleTable<T>({
@@ -24,7 +24,7 @@ export default function SimpleTable<T>({
   createAction,
   editAction,
   deleteAction,
-  openLink = null,
+  openLink = undefined,
 }: SimpleTableProps<T>) {
   const [sorting, setSorting] = useState<SortingState>([]);
 

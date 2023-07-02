@@ -2,10 +2,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { ColumnDef } from "@tanstack/react-table";
 import { User } from "firebase/auth";
 import { push, ref, remove, update } from "firebase/database";
-import { useEffect, useMemo, useState } from "react";
-import { useList } from "react-firebase-hooks/database";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
-import { AiOutlineExclamationCircle } from "react-icons/ai";
 import { Link, Navigate, useOutletContext, useParams } from "react-router-dom";
 import { z } from "zod";
 
@@ -13,47 +11,26 @@ import Input from "../../../components/Input";
 import { Modal } from "../../../components/Modal";
 import SimpleTable from "../../../components/Table/SimpleTable";
 import { database } from "../../../config/firebase";
-import { Class, classesSchema } from "../../timetables/timetable-types";
+import {
+  Class,
+  Timetable,
+  classesSchema,
+} from "../../timetables/timetable-types";
 
 export default function Classes() {
   const { timetableUid } = useParams();
-  const currentUser: User = useOutletContext();
-
-  const [classes, loading, error] = useList(
-    ref(
-      database,
-      `users/${currentUser.uid}/timetables/objects/${timetableUid}/classes`
-    )
-  );
-
-  const mappedData = useMemo<Class[]>(() => {
-    if (!classes) {
-      return [];
-    }
-
-    return classes.map((c) => ({ uid: c.key, ...c.val() }));
-  }, [classes]);
+  const {
+    currentUser,
+    timetable,
+  }: { currentUser: User; timetable: Timetable } = useOutletContext();
 
   if (!timetableUid) {
     return <Navigate to="/timetables" />;
   }
 
-  if (error) {
-    return (
-      <div className="alert alert-error">
-        <AiOutlineExclamationCircle />
-        <span>Error! {error.message}</span>
-      </div>
-    );
-  }
-
-  if (loading) {
-    return <div>Loading...</div>;
-  }
-
   return (
     <ClassesLoaded
-      classes={mappedData}
+      classes={timetable.classes}
       currentUserId={currentUser.uid}
       timetableId={timetableUid}
     />
@@ -104,7 +81,7 @@ function ClassesLoaded({
   const handleDelete = (uid: string) => {
     const timetableFlatRef = ref(
       database,
-      `users/${currentUserId}/timetables/objects/${timetableId}/classes/${uid}?shallow=true`
+      `users/${currentUserId}/timetables/${timetableId}/classes/${uid}?shallow=true`
     );
 
     remove(timetableFlatRef);
@@ -157,7 +134,7 @@ function Form({ currentUserId, defaultValues, timetableId }: FormProps) {
         update(
           ref(
             database,
-            `users/${currentUserId}/timetables/objects/${timetableId}/classes/${defaultValues.uid}`
+            `users/${currentUserId}/timetables/${timetableId}/classes/${defaultValues.uid}`
           ),
           { name: data.name, lessons: data.lessons }
         )
@@ -167,7 +144,7 @@ function Form({ currentUserId, defaultValues, timetableId }: FormProps) {
         push(
           ref(
             database,
-            `users/${currentUserId}/timetables/objects/${timetableId}/classes`
+            `users/${currentUserId}/timetables/${timetableId}/classes`
           ),
           {
             name: data.name,

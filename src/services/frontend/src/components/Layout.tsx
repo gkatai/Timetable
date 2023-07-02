@@ -1,12 +1,12 @@
-import { useAuthState } from "react-firebase-hooks/auth";
 import { AiOutlineUser } from "react-icons/ai";
 import { FiLogIn, FiLogOut, FiSettings } from "react-icons/fi";
 import { Link, Outlet } from "react-router-dom";
 
 import { auth } from "../config/firebase";
+import { useAppSelector } from "../store/hooks";
 
 export default function Layout() {
-  const [user] = useAuthState(auth);
+  const user = useAppSelector((state) => state.user);
 
   return (
     <>
@@ -20,7 +20,10 @@ export default function Layout() {
           </div>
           <div className="navbar-end">
             <ul className="menu menu-horizontal hidden px-1 md:block">
-              <li>{user && (user.isAnonymous ? "Guest" : user.email)}</li>
+              <li>
+                {user.kind === "user-logged-in" &&
+                  (user.isAnonymous ? "Guest" : user.email)}
+              </li>
             </ul>
             <div className="dropdown-end dropdown">
               <label></label>
