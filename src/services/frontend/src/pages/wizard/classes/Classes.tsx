@@ -59,12 +59,12 @@ function ClassesLoaded({
 }: ClassesLoadedProps) {
   const [defaultValues, setDefaultValues] = useState<FormValues>({
     name: "",
-    lessons: [],
+    lessons: {},
   });
 
   const handleCreate = () => {
     window["form-modal"].showModal();
-    setDefaultValues({ name: "", lessons: [] });
+    setDefaultValues({ name: "", lessons: {} });
   };
   const handleEdit = (uid: string) => {
     const foundClass = classes.find((d) => d.uid === uid);

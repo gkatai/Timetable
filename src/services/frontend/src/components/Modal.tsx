@@ -18,6 +18,7 @@ type SaveFulfilled = { kind: "save-fulfilled" };
 type SaveState = SaveIdle | SavePending | SaveRejected | SaveFulfilled;
 
 type ModalProps<T extends FieldValues> = {
+  title: string;
   save: (data: T) => Promise<void>;
   children: React.ReactNode;
   reset: UseFormReset<T>;
@@ -25,6 +26,7 @@ type ModalProps<T extends FieldValues> = {
 };
 
 export function Modal<T extends FieldValues>({
+  title,
   save,
   children,
   reset,
@@ -55,10 +57,10 @@ export function Modal<T extends FieldValues>({
     <dialog id="form-modal" className="modal">
       <form
         method="dialog"
-        className="modal-box flex flex-col gap-4"
+        className="modal-box flex flex-col gap-4 w-11/12 max-w-2xl"
         onSubmit={handleSubmit(onSubmit)}
       >
-        <h3 className="font-bold text-lg">Create new timetable</h3>
+        <h3>{title}</h3>
 
         {children}
 

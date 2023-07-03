@@ -2,7 +2,16 @@ import { signInAnonymously } from "firebase/auth";
 import { useState } from "react";
 
 import { auth } from "../../../config/firebase";
-import { LoginState } from "./login-types";
+
+type LoginIdle = { kind: "login-idle" };
+
+type LoginPending = { kind: "login-pending" };
+
+type LoginFulfilled = { kind: "login-fulfilled" };
+
+type LoginRejected = { kind: "login-rejected"; errorMessage: string };
+
+type LoginState = LoginIdle | LoginPending | LoginFulfilled | LoginRejected;
 
 export function useLoginAsGuest(): [LoginState, () => void] {
   const [loginAsGuestState, setLoginAsGuestState] = useState<LoginState>({

@@ -43,7 +43,7 @@ export default function Wizard() {
   }
 
   return (
-    <div>
+    <div className="prose-sm lg:prose-base">
       <ul className="steps w-full py-8">
         <li className="step step-primary">
           <Link to={`/timetables/${timetableUid}/rooms`}>Rooms</Link>

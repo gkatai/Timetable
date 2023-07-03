@@ -144,7 +144,12 @@ function Form({ currentUserId, defaultValues }: FormProps) {
   };
 
   return (
-    <Modal save={handleSave} reset={reset} handleSubmit={handleSubmit}>
+    <Modal
+      title="Timetable"
+      save={handleSave}
+      reset={reset}
+      handleSubmit={handleSubmit}
+    >
       <Input label="Name" error={formState.errors["name"]}>
         <input
           type="text"

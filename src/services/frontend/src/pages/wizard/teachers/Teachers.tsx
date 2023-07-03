@@ -10,6 +10,7 @@ import { z } from "zod";
 import Input from "../../../components/Input";
 import { Modal } from "../../../components/Modal";
 import SimpleTable from "../../../components/Table/SimpleTable";
+import TimetableSelector from "../../../components/TimetableSelector";
 import { database } from "../../../config/firebase";
 import { Teacher, Timetable } from "../../timetables/timetable-types";
 
@@ -36,7 +37,7 @@ export default function Teachers() {
 const schema = z.object({
   uid: z.string().optional(),
   name: z.string().min(2),
-  schedule: z.string().length(120),
+  schedule: z.string().length(60),
 });
 
 type FormValues = z.infer<typeof schema>;
@@ -117,9 +118,10 @@ type FormProps = {
 };
 
 function Form({ currentUserId, defaultValues, timetableId }: FormProps) {
-  const { formState, register, reset, handleSubmit } = useForm<FormValues>({
-    resolver: zodResolver(schema),
-  });
+  const { formState, register, reset, handleSubmit, getValues, setValue } =
+    useForm<FormValues>({
+      resolver: zodResolver(schema),
+    });
 
   useEffect(() => {
     reset(defaultValues);
@@ -155,7 +157,12 @@ function Form({ currentUserId, defaultValues, timetableId }: FormProps) {
   };
 
   return (
-    <Modal save={handleSave} reset={reset} handleSubmit={handleSubmit}>
+    <Modal
+      title="Teacher"
+      save={handleSave}
+      reset={reset}
+      handleSubmit={handleSubmit}
+    >
       <Input label="Name" error={formState.errors["name"]}>
         <input
           type="text"
@@ -163,13 +170,10 @@ function Form({ currentUserId, defaultValues, timetableId }: FormProps) {
           {...register("name")}
         />
       </Input>
-      <Input label="Schedule" error={formState.errors["schedule"]}>
-        <input
-          type="text"
-          className="input-bordered input w-full"
-          {...register("schedule")}
-        />
-      </Input>
+      <TimetableSelector
+        defaultTimetableString={getValues("schedule")}
+        setTimetableString={(ttString) => setValue("schedule", ttString)}
+      />
     </Modal>
   );
 }

@@ -4,7 +4,6 @@ import { onValue, ref } from "firebase/database";
 import { database } from "../../config/firebase";
 import {
   Class,
-  Lesson,
   Room,
   Subject,
   Teacher,
@@ -48,6 +47,10 @@ type TimetablesRecord = Record<
 >;
 
 function mapTimetablesRecord(record: TimetablesRecord): Timetable[] {
+  if (!record) {
+    return [];
+  }
+
   return Object.entries(record).map((entry) => ({
     uid: entry[0],
     name: entry[1].name,
