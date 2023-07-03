@@ -77,7 +77,7 @@ export type Lesson = z.infer<typeof lessonsSchema>;
 export const classesSchema = z.object({
   uid: z.string().optional(),
   name: z.string().min(2),
-  lessons: z.record(lessonsSchema),
+  lessons: z.any(),
 });
 
 export type Class = z.infer<typeof classesSchema>;

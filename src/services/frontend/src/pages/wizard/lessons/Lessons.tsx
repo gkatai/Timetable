@@ -47,7 +47,7 @@ export default function Lessons() {
     }
 
     return {
-      lessons: Object.values(foundClass.lessons),
+      lessons: foundClass.lessons,
       classes: timetable.classes,
       subjects: timetable.subjects,
       teachers: timetable.teachers,
@@ -157,7 +157,7 @@ function LessonsLoaded({
   const handleDelete = (uid: string) => {
     const timetableFlatRef = ref(
       database,
-      `users/${currentUserId}/timetables/${timetableId}/classes/${uid}`
+      `users/${currentUserId}/timetables/${timetableId}/classes/${classId}/lessons/${uid}`
     );
 
     remove(timetableFlatRef);
@@ -178,8 +178,8 @@ function LessonsLoaded({
         data={data.lessons}
         columns={columns}
         createAction={handleCreate}
-        deleteAction={handleDelete}
-        editAction={handleEdit}
+        deleteAction={(uid) => handleDelete(uid)}
+        editAction={(uid) => handleEdit(uid)}
       />
     </>
   );
@@ -247,7 +247,12 @@ function Form({
   };
 
   return (
-    <Modal save={handleSave} reset={reset} handleSubmit={handleSubmit}>
+    <Modal
+      title="Lesson"
+      save={handleSave}
+      reset={reset}
+      handleSubmit={handleSubmit}
+    >
       <Input label="Number of lessons" error={errors["numberOfLessons"]}>
         <input
           type="number"

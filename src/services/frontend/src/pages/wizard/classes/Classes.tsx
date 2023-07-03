@@ -81,7 +81,7 @@ function ClassesLoaded({
   const handleDelete = (uid: string) => {
     const timetableFlatRef = ref(
       database,
-      `users/${currentUserId}/timetables/${timetableId}/classes/${uid}?shallow=true`
+      `users/${currentUserId}/timetables/${timetableId}/classes/${uid}`
     );
 
     remove(timetableFlatRef);
@@ -98,8 +98,8 @@ function ClassesLoaded({
         data={classes}
         columns={columns}
         createAction={handleCreate}
-        deleteAction={handleDelete}
-        editAction={handleEdit}
+        deleteAction={(uid) => handleDelete(uid)}
+        editAction={(uid) => handleEdit(uid)}
         openLink={(uid) => (
           <Link
             className="btn btn-secondary"
@@ -158,7 +158,12 @@ function Form({ currentUserId, defaultValues, timetableId }: FormProps) {
   };
 
   return (
-    <Modal save={handleSave} reset={reset} handleSubmit={handleSubmit}>
+    <Modal
+      title="Class"
+      save={handleSave}
+      reset={reset}
+      handleSubmit={handleSubmit}
+    >
       <Input label="Name" error={formState.errors["name"]}>
         <input
           type="text"

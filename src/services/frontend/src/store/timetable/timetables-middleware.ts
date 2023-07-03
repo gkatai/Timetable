@@ -4,6 +4,7 @@ import { onValue, ref } from "firebase/database";
 import { database } from "../../config/firebase";
 import {
   Class,
+  Lesson,
   Room,
   Subject,
   Teacher,
@@ -114,6 +115,19 @@ function mapClassesRecord(
   return Object.entries(record).map((entry) => ({
     uid: entry[0],
     name: entry[1].name,
-    lessons: entry[1].lessons || [],
+    lessons: mapLessonsRecord(entry[1].lessons),
+  }));
+}
+
+function mapLessonsRecord(
+  record: Record<string, Lesson> | undefined
+): Lesson[] {
+  if (!record) {
+    return [];
+  }
+
+  return Object.entries(record).map((entry) => ({
+    uid: entry[0],
+    ...entry[1],
   }));
 }

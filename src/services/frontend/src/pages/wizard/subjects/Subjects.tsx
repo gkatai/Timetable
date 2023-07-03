@@ -162,7 +162,12 @@ function Form({ currentUserId, defaultValues, timetableId, rooms }: FormProps) {
   };
 
   return (
-    <Modal save={handleSave} reset={reset} handleSubmit={handleSubmit}>
+    <Modal
+      title="Subject"
+      save={handleSave}
+      reset={reset}
+      handleSubmit={handleSubmit}
+    >
       <Input label="Name" error={formState.errors["name"]}>
         <input
           type="text"
