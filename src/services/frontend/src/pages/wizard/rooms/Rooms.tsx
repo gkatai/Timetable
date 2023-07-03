@@ -124,8 +124,6 @@ function Form({ currentUserId, defaultValues, timetableId }: FormProps) {
     reset(defaultValues);
   }, [reset, defaultValues]);
 
-  console.log(formState);
-
   const handleSave = (data: FormValues) => {
     return new Promise<void>((resolve, reject) => {
       if (defaultValues.uid) {

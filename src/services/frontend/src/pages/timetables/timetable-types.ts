@@ -28,12 +28,25 @@ export const reservationSchema = z.union([
 
 export type Reservation = z.infer<typeof reservationSchema>;
 
-export const subjectSchema = z.object({
-  uid: z.string().optional(),
-  name: z.string().min(2),
-  occupation: occupationSchema,
-  rooms: z.array(z.string()).min(1).max(3),
-});
+export const subjectSchema = z
+  .object({
+    uid: z.string().optional(),
+    name: z.string().min(2),
+    occupation: occupationSchema,
+    rooms: z.array(z.string()).max(3),
+  })
+  .superRefine((val, ctx) => {
+    if (val.occupation !== "free" && val.rooms.length === 0) {
+      ctx.addIssue({
+        path: ["rooms"],
+        code: "too_small",
+        type: "array",
+        message: "If occupation is not free, select at least 1 room",
+        minimum: 1,
+        inclusive: true,
+      });
+    }
+  });
 
 export type Subject = z.infer<typeof subjectSchema>;
 

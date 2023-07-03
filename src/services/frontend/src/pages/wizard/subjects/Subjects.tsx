@@ -47,6 +47,10 @@ const columns: ColumnDef<Subject>[] = [
     header: "Name",
     accessorKey: "name",
   },
+  {
+    header: "Occupation",
+    accessorKey: "occupation",
+  },
 ];
 
 type SubjectsLoadedProps = {
