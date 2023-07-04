@@ -100,7 +100,7 @@ export default function TimetableSelector({
           {table.map((row, rowIndex) => (
             <tr key={rowIndex}>
               <td className="">{rowIndex + 1}</td>
-              {row.map((field, fieldIndex) => (
+              {row.map((_, fieldIndex) => (
                 <td
                   key={fieldIndex}
                   onMouseMove={(e) => handleMouseMove(e, rowIndex, fieldIndex)}

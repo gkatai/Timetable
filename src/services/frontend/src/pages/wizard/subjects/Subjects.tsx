@@ -2,9 +2,10 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { ColumnDef } from "@tanstack/react-table";
 import { User } from "firebase/auth";
 import { push, ref, remove, update } from "firebase/database";
-import { useEffect, useState } from "react";
-import { useForm } from "react-hook-form";
+import { useEffect, useMemo, useState } from "react";
+import { Controller, useForm } from "react-hook-form";
 import { Navigate, useOutletContext, useParams } from "react-router-dom";
+import Select from "react-select";
 import { z } from "zod";
 
 import Input from "../../../components/Input";
@@ -123,9 +124,15 @@ type FormProps = {
 };
 
 function Form({ currentUserId, defaultValues, timetableId, rooms }: FormProps) {
-  const { formState, register, reset, handleSubmit } = useForm<FormValues>({
-    resolver: zodResolver(subjectSchema),
-  });
+  const { formState, register, reset, handleSubmit, control } =
+    useForm<FormValues>({
+      resolver: zodResolver(subjectSchema),
+    });
+
+  const roomOptions = useMemo(
+    () => rooms.map((room) => ({ value: room.uid, label: room.name })),
+    [rooms]
+  );
 
   useEffect(() => {
     reset(defaultValues);
@@ -185,18 +192,21 @@ function Form({ currentUserId, defaultValues, timetableId, rooms }: FormProps) {
           <option value="registered">Registered</option>
         </select>
       </Input>
+
       <Input label="Rooms" error={formState.errors["rooms"]}>
-        <select
-          className="select select-bordered w-full"
-          multiple
-          {...register("rooms")}
-        >
-          {rooms.map((room) => (
-            <option key={room.uid} value={room.uid}>
-              {room.name}
-            </option>
-          ))}
-        </select>
+        <Controller
+          control={control}
+          defaultValue={roomOptions.map((c) => c.value)}
+          name="rooms"
+          render={({ field: { onChange, value, ref } }) => (
+            <Select
+              value={roomOptions.filter((c) => value.includes(c.value))}
+              onChange={(val) => onChange(val.map((c) => c.value))}
+              options={roomOptions}
+              isMulti
+            />
+          )}
+        />
       </Input>
     </Modal>
   );
