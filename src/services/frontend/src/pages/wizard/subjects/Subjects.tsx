@@ -193,21 +193,23 @@ function Form({ currentUserId, defaultValues, timetableId, rooms }: FormProps) {
         </select>
       </Input>
 
-      <Input label="Rooms" error={formState.errors["rooms"]}>
-        <Controller
-          control={control}
-          defaultValue={roomOptions.map((c) => c.value)}
-          name="rooms"
-          render={({ field: { onChange, value, ref } }) => (
-            <Select
-              value={roomOptions.filter((c) => value.includes(c.value))}
-              onChange={(val) => onChange(val.map((c) => c.value))}
-              options={roomOptions}
-              isMulti
-            />
-          )}
-        />
-      </Input>
+      <div className="pb-24">
+        <Input label="Rooms" error={formState.errors["rooms"]}>
+          <Controller
+            control={control}
+            defaultValue={roomOptions.map((c) => c.value)}
+            name="rooms"
+            render={({ field: { onChange, value } }) => (
+              <Select
+                value={roomOptions.filter((c) => value.includes(c.value))}
+                onChange={(val) => onChange(val.map((c) => c.value))}
+                options={roomOptions}
+                isMulti
+              />
+            )}
+          />
+        </Input>
+      </div>
     </Modal>
   );
 }
