@@ -15,7 +15,6 @@ type SimpleTableProps<T> = {
   createAction?: () => void;
   editAction?: (id: string) => void;
   deleteAction?: (id: string) => void;
-  generateAction?: (id: string) => void;
   openLink?: (id: string) => React.ReactElement;
 };
 
@@ -25,7 +24,6 @@ export function SimpleTable<T>({
   createAction,
   editAction,
   deleteAction,
-  generateAction,
   openLink,
 }: SimpleTableProps<T>) {
   const [sorting, setSorting] = useState<SortingState>([]);
@@ -96,33 +94,26 @@ export function SimpleTable<T>({
                     </td>
                   );
                 })}
-                {editAction && deleteAction && (
-                  <td className="flex gap-4 justify-end">
+
+                <td className="flex gap-4 justify-end">
+                  {editAction && (
                     <button
                       className="btn btn-primary"
                       onClick={() => editAction(row.original["uid"])}
                     >
                       Edit
                     </button>
+                  )}
+                  {deleteAction && (
                     <button
                       className="btn btn-error"
                       onClick={() => deleteAction(row.original["uid"])}
                     >
                       Delete
                     </button>
-                    {openLink && openLink(row.original["uid"])}
-                  </td>
-                )}
-                {generateAction && (
-                  <td className="flex gap-4 justify-end">
-                    <button
-                      className="btn btn-primary"
-                      onClick={() => generateAction(row.original["uid"])}
-                    >
-                      Generate
-                    </button>
-                  </td>
-                )}
+                  )}
+                  {openLink && openLink(row.original["uid"])}
+                </td>
               </tr>
             );
           })}

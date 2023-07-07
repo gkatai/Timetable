@@ -2,5 +2,8 @@
   "name": "@timetable/components",
   "version": "1.0.0",
   "main": "src/index.ts",
-  "type": "module"
+  "type": "module",
+  "dependencies": {
+    "react-markdown": "^8.0.7"
+  }
 }
