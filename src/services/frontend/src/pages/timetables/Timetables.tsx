@@ -1,19 +1,17 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ColumnDef } from "@tanstack/react-table";
-import { User } from "firebase/auth";
-import { push, ref, remove, update } from "firebase/database";
+import { Input } from "@timetable/components";
+import { User, database, databaseOperations } from "@timetable/firebase";
+import { Timetable } from "@timetable/types";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useSelector } from "react-redux";
 import { Link, useOutletContext } from "react-router-dom";
 import { z } from "zod";
 
-import Input from "../../components/Input";
 import { Modal } from "../../components/Modal";
 import SimpleTable from "../../components/Table/SimpleTable";
-import { database } from "../../config/firebase";
 import { RootState } from "../../store/store";
-import { Timetable } from "./timetable-types";
 
 export default function Timetables() {
   const currentUser: User = useOutletContext();
@@ -80,12 +78,12 @@ function TimeTablesLoaded({ data, currentUserId }: TimetablesLoadedProps) {
   };
 
   const handleDelete = (uid: string) => {
-    const timetableRef = ref(
+    const timetableRef = databaseOperations.ref(
       database,
       `users/${currentUserId}/timetables/${uid}`
     );
 
-    remove(timetableRef);
+    databaseOperations.remove(timetableRef);
   };
 
   return (
@@ -124,19 +122,27 @@ function Form({ currentUserId, defaultValues }: FormProps) {
   const handleSave = (data: FormValues) => {
     return new Promise<void>((resolve, reject) => {
       if (defaultValues.uid) {
-        update(
-          ref(
-            database,
-            `users/${currentUserId}/timetables/${defaultValues.uid}`
-          ),
-          { name: data.name }
-        )
+        databaseOperations
+          .update(
+            databaseOperations.ref(
+              database,
+              `users/${currentUserId}/timetables/${defaultValues.uid}`
+            ),
+            { name: data.name }
+          )
           .then(() => resolve())
           .catch((error) => reject(error));
       } else {
-        push(ref(database, `users/${currentUserId}/timetables`), {
-          name: data.name,
-        })
+        databaseOperations
+          .push(
+            databaseOperations.ref(
+              database,
+              `users/${currentUserId}/timetables`
+            ),
+            {
+              name: data.name,
+            }
+          )
           .then(() => resolve())
           .catch((error) => reject(error));
       }

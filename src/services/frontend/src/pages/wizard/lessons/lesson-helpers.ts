@@ -1,7 +1,6 @@
-import { DataSnapshot, ref } from "firebase/database";
+import { database } from "@timetable/firebase";
+import { DataSnapshot, databaseOperations } from "@timetable/firebase";
 import { useList } from "react-firebase-hooks/database";
-
-import { database } from "../../../config/firebase";
 
 export function useGetLessons(
   currentUserId: string,
@@ -18,28 +17,28 @@ export function useGetLessons(
   string | null
 ] {
   const [lessons, lessonsLoading, lessonsError] = useList(
-    ref(
+    databaseOperations.ref(
       database,
       `users/${currentUserId}/timetables/objects/${timetableId}/classes/${classId}/lessons`
     )
   );
 
   const [classes, classesLoading, classesError] = useList(
-    ref(
+    databaseOperations.ref(
       database,
       `users/${currentUserId}/timetables/objects/${timetableId}/classes`
     )
   );
 
   const [teachers, teachersLoading, teachersError] = useList(
-    ref(
+    databaseOperations.ref(
       database,
       `users/${currentUserId}/timetables/objects/${timetableId}/teachers`
     )
   );
 
   const [subjects, subjectsLoading, subjectsError] = useList(
-    ref(
+    databaseOperations.ref(
       database,
       `users/${currentUserId}/timetables/objects/${timetableId}/subjects`
     )

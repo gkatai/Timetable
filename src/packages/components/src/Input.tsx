@@ -10,7 +10,7 @@ type InputProps = {
   children: React.ReactElement;
 };
 
-export default function Input({ label, error, children }: InputProps) {
+export function Input({ label, error, children }: InputProps) {
   return (
     <div className="form-control w-full">
       <label className="label">

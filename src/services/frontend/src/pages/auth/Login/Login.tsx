@@ -1,6 +1,6 @@
+import { LoginWithEmail } from "@timetable/components";
 import { Link } from "react-router-dom";
 
-import { LoginWithEmail } from "./LoginWithEmail";
 import { LoginWithGoogle } from "./LoginWithGoogle";
 
 export default function Login() {

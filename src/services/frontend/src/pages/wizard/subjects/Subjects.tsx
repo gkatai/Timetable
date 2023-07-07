@@ -1,23 +1,17 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ColumnDef } from "@tanstack/react-table";
-import { User } from "firebase/auth";
-import { push, ref, remove, update } from "firebase/database";
+import { Input } from "@timetable/components";
+import { database } from "@timetable/firebase";
+import { User, databaseOperations } from "@timetable/firebase";
+import { Room, Subject, Timetable, subjectSchema } from "@timetable/types";
 import { useEffect, useMemo, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { Navigate, useOutletContext, useParams } from "react-router-dom";
 import Select from "react-select";
 import { z } from "zod";
 
-import Input from "../../../components/Input";
 import { Modal } from "../../../components/Modal";
 import SimpleTable from "../../../components/Table/SimpleTable";
-import { database } from "../../../config/firebase";
-import {
-  Room,
-  Subject,
-  Timetable,
-  subjectSchema,
-} from "../../timetables/timetable-types";
 
 type SubjectData = { subjects: Subject[]; rooms: Room[] };
 
@@ -89,12 +83,12 @@ function SubjectsLoaded({
     }
   };
   const handleDelete = (uid: string) => {
-    const timetableFlatRef = ref(
+    const timetableFlatRef = databaseOperations.ref(
       database,
       `users/${currentUserId}/timetables/${timetableId}/subjects/${uid}`
     );
 
-    remove(timetableFlatRef);
+    databaseOperations.remove(timetableFlatRef);
   };
 
   return (
@@ -141,27 +135,29 @@ function Form({ currentUserId, defaultValues, timetableId, rooms }: FormProps) {
   const handleSave = (data: FormValues) => {
     return new Promise<void>((resolve, reject) => {
       if (defaultValues.uid) {
-        update(
-          ref(
-            database,
-            `users/${currentUserId}/timetables/${timetableId}/subjects/${defaultValues.uid}`
-          ),
-          { name: data.name, occupation: data.occupation, rooms: data.rooms }
-        )
+        databaseOperations
+          .update(
+            databaseOperations.ref(
+              database,
+              `users/${currentUserId}/timetables/${timetableId}/subjects/${defaultValues.uid}`
+            ),
+            { name: data.name, occupation: data.occupation, rooms: data.rooms }
+          )
           .then(() => resolve())
           .catch((error) => reject(error));
       } else {
-        push(
-          ref(
-            database,
-            `users/${currentUserId}/timetables/${timetableId}/subjects`
-          ),
-          {
-            name: data.name,
-            occupation: data.occupation,
-            rooms: data.rooms,
-          }
-        )
+        databaseOperations
+          .push(
+            databaseOperations.ref(
+              database,
+              `users/${currentUserId}/timetables/${timetableId}/subjects`
+            ),
+            {
+              name: data.name,
+              occupation: data.occupation,
+              rooms: data.rooms,
+            }
+          )
           .then(() => resolve())
           .catch((error) => reject(error));
       }

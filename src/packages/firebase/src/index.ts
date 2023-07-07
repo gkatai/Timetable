@@ -1,6 +1,15 @@
 import { initializeApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
-import { getDatabase } from "firebase/database";
+import { User, onAuthStateChanged, signInAnonymously } from "firebase/auth";
+import {
+  DataSnapshot,
+  getDatabase,
+  onValue,
+  push,
+  ref,
+  remove,
+  update,
+} from "firebase/database";
 
 const firebaseConfig = {
   apiKey: "AIzaSyD4g_KjsbyuSeLUkaDS7FQt5JauyRH4hrI",
@@ -18,3 +27,6 @@ export const database = getDatabase(
   app,
   "https://timetable-c8a23-default-rtdb.europe-west1.firebasedatabase.app"
 );
+export const databaseOperations = { push, ref, remove, update, onValue };
+export { signInAnonymously, onAuthStateChanged };
+export type { User, DataSnapshot };

@@ -1,7 +1,7 @@
 import { Middleware, MiddlewareAPI } from "@reduxjs/toolkit";
-import { onAuthStateChanged } from "firebase/auth";
+import { auth } from "@timetable/firebase";
+import { onAuthStateChanged } from "@timetable/firebase";
 
-import { auth } from "../../config/firebase";
 import { userActions } from "./user-slice";
 
 export const userMiddleware: Middleware = (store: MiddlewareAPI) => {

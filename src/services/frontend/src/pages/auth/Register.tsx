@@ -1,12 +1,11 @@
 import { zodResolver } from "@hookform/resolvers/zod";
+import { Input } from "@timetable/components";
+import { auth } from "@timetable/firebase";
 import { useCreateUserWithEmailAndPassword } from "react-firebase-hooks/auth";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { AiOutlineExclamationCircle } from "react-icons/ai";
 import { Navigate } from "react-router-dom";
 import { z } from "zod";
-
-import Input from "../../components/Input";
-import { auth } from "../../config/firebase";
 
 const schema = z
   .object({

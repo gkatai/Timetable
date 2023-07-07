@@ -1,8 +1,7 @@
+import { auth } from "@timetable/firebase";
 import { useSignInWithGoogle } from "react-firebase-hooks/auth";
 import { AiOutlineExclamationCircle, AiOutlineGoogle } from "react-icons/ai";
 import { Navigate } from "react-router-dom";
-
-import { auth } from "../../../config/firebase";
 
 export function LoginWithGoogle() {
   const [signInWithGoogle, user, loading, error] = useSignInWithGoogle(auth);

@@ -1,8 +1,8 @@
+import { auth } from "@timetable/firebase";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { AiOutlineExclamationCircle } from "react-icons/ai";
 import { Link, Navigate } from "react-router-dom";
 
-import { auth } from "../../../config/firebase";
 import { useLoginAsGuest } from "../../auth/Login/use-login-as-guest";
 
 export default function NextButton() {

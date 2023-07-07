@@ -1,6 +1,5 @@
+import { Class, Timetable } from "@timetable/types";
 import { useOutletContext } from "react-router-dom";
-
-import { Class, Timetable } from "../../timetables/timetable-types";
 
 export default function Generate() {
   const { timetable }: { timetable: Timetable } = useOutletContext();

@@ -1,4 +1,4 @@
-import { User } from "firebase/auth";
+import { User } from "@timetable/firebase";
 import { useSelector } from "react-redux";
 import {
   Link,

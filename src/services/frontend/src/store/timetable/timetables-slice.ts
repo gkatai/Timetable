@@ -1,6 +1,5 @@
 import { PayloadAction, createSlice } from "@reduxjs/toolkit";
-
-import { Timetable } from "../../pages/timetables/timetable-types";
+import { Timetable } from "@timetable/types";
 
 type TimetablesPending = { kind: "timetables-pending" };
 

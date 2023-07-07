@@ -1,7 +1,5 @@
-import { signInAnonymously } from "firebase/auth";
+import { auth, signInAnonymously } from "@timetable/firebase";
 import { useState } from "react";
-
-import { auth } from "../../../config/firebase";
 
 type LoginIdle = { kind: "login-idle" };
 

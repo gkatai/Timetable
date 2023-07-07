@@ -1,16 +1,8 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ColumnDef } from "@tanstack/react-table";
-import { User } from "firebase/auth";
-import { push, ref, remove, update } from "firebase/database";
-import { useEffect, useMemo, useState } from "react";
-import { useForm } from "react-hook-form";
-import { Link, Navigate, useOutletContext, useParams } from "react-router-dom";
-import { z } from "zod";
-
-import Input from "../../../components/Input";
-import { Modal } from "../../../components/Modal";
-import SimpleTable from "../../../components/Table/SimpleTable";
-import { database } from "../../../config/firebase";
+import { Input } from "@timetable/components";
+import { database } from "@timetable/firebase";
+import { User, databaseOperations } from "@timetable/firebase";
 import {
   Class,
   Lesson,
@@ -18,7 +10,14 @@ import {
   Teacher,
   Timetable,
   lessonsSchema,
-} from "../../timetables/timetable-types";
+} from "@timetable/types";
+import { useEffect, useMemo, useState } from "react";
+import { useForm } from "react-hook-form";
+import { Link, Navigate, useOutletContext, useParams } from "react-router-dom";
+import { z } from "zod";
+
+import { Modal } from "../../../components/Modal";
+import SimpleTable from "../../../components/Table/SimpleTable";
 
 type LessonData = {
   lessons: Lesson[];
@@ -155,12 +154,12 @@ function LessonsLoaded({
     }
   };
   const handleDelete = (uid: string) => {
-    const timetableFlatRef = ref(
+    const timetableFlatRef = databaseOperations.ref(
       database,
       `users/${currentUserId}/timetables/${timetableId}/classes/${classId}/lessons/${uid}`
     );
 
-    remove(timetableFlatRef);
+    databaseOperations.remove(timetableFlatRef);
   };
 
   return (
@@ -223,23 +222,25 @@ function Form({
   const handleSave = (data: FormValues) => {
     return new Promise<void>((resolve, reject) => {
       if (defaultValues.uid) {
-        update(
-          ref(
-            database,
-            `users/${currentUserId}/timetables/${timetableId}/classes/${classId}/lessons/${defaultValues.uid}`
-          ),
-          data
-        )
+        databaseOperations
+          .update(
+            databaseOperations.ref(
+              database,
+              `users/${currentUserId}/timetables/${timetableId}/classes/${classId}/lessons/${defaultValues.uid}`
+            ),
+            data
+          )
           .then(() => resolve())
           .catch((error) => reject(error));
       } else {
-        push(
-          ref(
-            database,
-            `users/${currentUserId}/timetables/${timetableId}/classes/${classId}/lessons`
-          ),
-          data
-        )
+        databaseOperations
+          .push(
+            databaseOperations.ref(
+              database,
+              `users/${currentUserId}/timetables/${timetableId}/classes/${classId}/lessons`
+            ),
+            data
+          )
           .then(() => resolve())
           .catch((error) => reject(error));
       }

@@ -1,8 +1,8 @@
+import { auth } from "@timetable/firebase";
 import { AiOutlineUser } from "react-icons/ai";
 import { FiLogIn, FiLogOut, FiSettings } from "react-icons/fi";
 import { Link, Outlet } from "react-router-dom";
 
-import { auth } from "../config/firebase";
 import { useAppSelector } from "../store/hooks";
 
 export default function Layout() {
