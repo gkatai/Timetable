@@ -4,6 +4,7 @@
   "main": "src/index.ts",
   "type": "module",
   "dependencies": {
+    "@timetable/types": "file:../types",
     "react-markdown": "^8.0.7"
   }
 }

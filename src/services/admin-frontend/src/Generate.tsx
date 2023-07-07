@@ -1,5 +1,6 @@
 import { ResultTable } from "@timetable/components";
-import { Result } from "@timetable/components/src/ResultTable";
+import { database, databaseOperations } from "@timetable/firebase";
+import { Result } from "@timetable/types";
 import axios from "axios";
 import { useState } from "react";
 import { useParams } from "react-router-dom";
@@ -27,7 +28,16 @@ export default function Generate() {
           },
         }
       )
-      .then((response) => setResults(response.data.results))
+      .then((response) => {
+        const ref = databaseOperations.ref(
+          database,
+          `users/${foundTimetable.userId}/timetables/${foundTimetable.uid}/results/`
+        );
+        databaseOperations
+          .set(ref, response.data.results)
+          .then(() => setResults(response.data.results))
+          .catch(() => console.log("Can't write to database"));
+      })
       .catch((error) => console.log(error));
   };
 
@@ -36,6 +46,7 @@ export default function Generate() {
       <button className="btn btn-primary" onClick={handleGenerateClick}>
         Generate
       </button>
+
       {results.map((result, index) => (
         <ResultTable key={index} rows={result.rows} title={result.title} />
       ))}

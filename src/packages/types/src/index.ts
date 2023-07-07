@@ -89,6 +89,7 @@ export type Timetable = {
   teachers: Teacher[];
   subjects: Subject[];
   classes: Class[];
+  results?: Result[];
 };
 
 export type TimetablesRecord = Record<
@@ -99,8 +100,16 @@ export type TimetablesRecord = Record<
     teachers: Record<string, Omit<Teacher, "uid">> | undefined;
     subjects: Record<string, Omit<Subject, "uid">> | undefined;
     classes: Record<string, Omit<Class, "uid">> | undefined;
+    results?: Result[];
   }
 >;
+
+export type Result = {
+  title: string;
+  rows: {
+    items: { title: string; content: string[]; warningLevel: number }[];
+  }[];
+};
 
 export function mapTimetablesRecord(record: TimetablesRecord): Timetable[] {
   if (!record) {
@@ -114,6 +123,7 @@ export function mapTimetablesRecord(record: TimetablesRecord): Timetable[] {
     teachers: mapTeachersRecord(entry[1].teachers),
     subjects: mapSubjectsRecord(entry[1].subjects),
     classes: mapClassesRecord(entry[1].classes),
+    results: entry[1].results,
   }));
 }
 

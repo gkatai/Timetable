@@ -1,11 +1,5 @@
+import { Result } from "@timetable/types";
 import ReactMarkdown from "react-markdown";
-
-export type Result = {
-  title: string;
-  rows: {
-    items: { title: string; content: string[]; warningLevel: number }[];
-  }[];
-};
 
 export function ResultTable({ title, rows }: Result) {
   return (

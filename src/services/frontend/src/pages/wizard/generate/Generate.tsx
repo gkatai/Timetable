@@ -1,3 +1,4 @@
+import { ResultTable } from "@timetable/components";
 import { Class, Timetable } from "@timetable/types";
 import { useOutletContext } from "react-router-dom";
 
@@ -18,7 +19,12 @@ export default function Generate() {
           {countLessons(timetable.classes)} lessons
         </span>
       </div>
-      {JSON.stringify(timetable)}
+      <div className="divider my-8" />
+
+      {timetable.results &&
+        timetable.results.map((result, index) => (
+          <ResultTable key={index} rows={result.rows} title={result.title} />
+        ))}
     </article>
   );
 }

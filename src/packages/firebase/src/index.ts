@@ -8,6 +8,7 @@ import {
   push,
   ref,
   remove,
+  set,
   update,
 } from "firebase/database";
 
@@ -27,6 +28,6 @@ export const database = getDatabase(
   app,
   "https://timetable-c8a23-default-rtdb.europe-west1.firebasedatabase.app"
 );
-export const databaseOperations = { push, ref, remove, update, onValue };
+export const databaseOperations = { push, ref, remove, update, onValue, set };
 export { signInAnonymously, onAuthStateChanged };
 export type { User, DataSnapshot };
