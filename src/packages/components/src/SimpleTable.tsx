@@ -12,19 +12,21 @@ import { BiDownArrow, BiUpArrow } from "react-icons/bi";
 type SimpleTableProps<T> = {
   data: T[];
   columns: ColumnDef<T, any>[];
-  createAction: () => void;
-  editAction: (id: string) => void;
-  deleteAction: (id: string) => void;
+  createAction?: () => void;
+  editAction?: (id: string) => void;
+  deleteAction?: (id: string) => void;
+  generateAction?: (id: string) => void;
   openLink?: (id: string) => React.ReactElement;
 };
 
-export default function SimpleTable<T>({
+export function SimpleTable<T>({
   data,
   columns,
   createAction,
   editAction,
   deleteAction,
-  openLink = undefined,
+  generateAction,
+  openLink,
 }: SimpleTableProps<T>) {
   const [sorting, setSorting] = useState<SortingState>([]);
 
@@ -70,11 +72,13 @@ export default function SimpleTable<T>({
                   </th>
                 );
               })}
-              <th className="float-right">
-                <button className="btn btn-primary" onClick={createAction}>
-                  Create new
-                </button>
-              </th>
+              {createAction && (
+                <th className="float-right">
+                  <button className="btn btn-primary" onClick={createAction}>
+                    Create new
+                  </button>
+                </th>
+              )}
             </tr>
           ))}
         </thead>
@@ -92,21 +96,33 @@ export default function SimpleTable<T>({
                     </td>
                   );
                 })}
-                <td className="flex gap-4 justify-end">
-                  <button
-                    className="btn btn-primary"
-                    onClick={() => editAction(row.original["uid"])}
-                  >
-                    Edit
-                  </button>
-                  <button
-                    className="btn btn-error"
-                    onClick={() => deleteAction(row.original["uid"])}
-                  >
-                    Delete
-                  </button>
-                  {openLink && openLink(row.original["uid"])}
-                </td>
+                {editAction && deleteAction && (
+                  <td className="flex gap-4 justify-end">
+                    <button
+                      className="btn btn-primary"
+                      onClick={() => editAction(row.original["uid"])}
+                    >
+                      Edit
+                    </button>
+                    <button
+                      className="btn btn-error"
+                      onClick={() => deleteAction(row.original["uid"])}
+                    >
+                      Delete
+                    </button>
+                    {openLink && openLink(row.original["uid"])}
+                  </td>
+                )}
+                {generateAction && (
+                  <td className="flex gap-4 justify-end">
+                    <button
+                      className="btn btn-primary"
+                      onClick={() => generateAction(row.original["uid"])}
+                    >
+                      Generate
+                    </button>
+                  </td>
+                )}
               </tr>
             );
           })}

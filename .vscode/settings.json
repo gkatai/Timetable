@@ -1,3 +1,3 @@
 {
-  "conventionalCommits.scopes": ["all", "frontend"]
+  "conventionalCommits.scopes": ["all", "frontend", "admin-frontend"]
 }

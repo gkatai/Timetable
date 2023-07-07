@@ -1,6 +1,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ColumnDef } from "@tanstack/react-table";
 import { Input } from "@timetable/components";
+import { SimpleTable } from "@timetable/components";
 import { database } from "@timetable/firebase";
 import { User, databaseOperations } from "@timetable/firebase";
 import { Room, Timetable } from "@timetable/types";
@@ -10,7 +11,6 @@ import { Navigate, useOutletContext, useParams } from "react-router-dom";
 import { z } from "zod";
 
 import { Modal } from "../../../components/Modal";
-import SimpleTable from "../../../components/Table/SimpleTable";
 import TimetableSelector from "../../../components/TimetableSelector";
 
 export default function Rooms() {

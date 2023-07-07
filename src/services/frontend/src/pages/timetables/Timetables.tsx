@@ -1,6 +1,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ColumnDef } from "@tanstack/react-table";
 import { Input } from "@timetable/components";
+import { SimpleTable } from "@timetable/components";
 import { User, database, databaseOperations } from "@timetable/firebase";
 import { Timetable } from "@timetable/types";
 import { useEffect, useState } from "react";
@@ -10,7 +11,6 @@ import { Link, useOutletContext } from "react-router-dom";
 import { z } from "zod";
 
 import { Modal } from "../../components/Modal";
-import SimpleTable from "../../components/Table/SimpleTable";
 import { RootState } from "../../store/store";
 
 export default function Timetables() {

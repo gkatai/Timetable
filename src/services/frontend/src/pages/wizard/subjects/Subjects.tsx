@@ -1,6 +1,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ColumnDef } from "@tanstack/react-table";
 import { Input } from "@timetable/components";
+import { SimpleTable } from "@timetable/components";
 import { database } from "@timetable/firebase";
 import { User, databaseOperations } from "@timetable/firebase";
 import { Room, Subject, Timetable, subjectSchema } from "@timetable/types";
@@ -11,7 +12,6 @@ import Select from "react-select";
 import { z } from "zod";
 
 import { Modal } from "../../../components/Modal";
-import SimpleTable from "../../../components/Table/SimpleTable";
 
 type SubjectData = { subjects: Subject[]; rooms: Room[] };
 
